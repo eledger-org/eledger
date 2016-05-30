@@ -1,0 +1,19 @@
+{
+  "name": "eledger",
+  "version": "1.0.0",
+  "description": "A NodeJS api for serving eledger clients.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/eledger-org/eledger.git"
+  },
+  "author": "Henry Brown",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/eledger-org/eledger/issues"
+  },
+  "homepage": "https://github.com/eledger-org/eledger#readme"
+}
