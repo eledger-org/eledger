@@ -38,7 +38,7 @@ CREATE TABLE uploads (
 
 /** SETUP MIGRATION AND DATABASE INITIALIZATION **/
 
-model.setCreateSql(MODEL_NAME, currentCreateSql);
+model.addCreateSql(MODEL_NAME, currentCreateSql);
 
 model.setMigrateSql(1, MODEL_NAME, initialCreateSql);
 

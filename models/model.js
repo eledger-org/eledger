@@ -5,34 +5,35 @@ var sql 					= require('./sql');
 
 /** MODEL.JS MEMBER FUNCTIONS **/
 
-/** setCreateSql is used to build the list of create statements necessary to create the database from scratch **/
-module.exports.setCreateSql = function(modelName, createStatement) {
-	if (this.createSql === undefined) {
-		this.createSql = {};
+/** addCreateSql is used to build the list of create statements necessary to create the database from scratch **/
+module.exports.addCreateSql = function(modelName, createStatement) {
+	model = require('./model');
+
+	if (model.createSql === undefined) {
+		Log.I("Initializing createSql as an array.");
+		model.createSql = Array();
 	}
 
-	if (this.createSql[modelName] === undefined) {
-		this.createSql[modelName] = [];
-	}
-
-	this.createSql[modelName] = {
+	model.createSql.push({
 		"modelName": 				modelName,
 		"createStatement": 	createStatement
-	};
+	});
 };
 
 /** setMigrateSql is used to build the list of create and alter statements necessary to migrate the database from any point **/
 module.exports.setMigrateSql = function(versionIntFrom, modelName, migrateStatement) {
-	if (this.migrateSql === undefined) {
-		this.migrateSql = [];
+	model = require('./model');
+
+	if (model.migrateSql === undefined) {
+		model.migrateSql = [];
 	}
 
-	if (this.migrateSql[versionIntFrom] !== undefined && this.migrateSql[versionIntFrom] !== null) {
+	if (model.migrateSql[versionIntFrom] !== undefined && model.migrateSql[versionIntFrom] !== null) {
 		throw new Error("Each versionIntFrom must be different.  " + modelName +
 				" tried to overwrite the existing migration query for " +
-				JSON.stringify(this.migrateSql[versionIntFrom], null, 2));
+				JSON.stringify(model.migrateSql[versionIntFrom], null, 2));
 	} else {
-		this.migrateSql[versionIntFrom] = {
+		model.migrateSql[versionIntFrom] = {
 			"versionIntFrom": 	versionIntFrom,
 			"modelName": 				modelName,
 			"migrateStatement": migrateStatement
@@ -50,40 +51,41 @@ module.exports.Uploads						= require('./Uploads');
 //module.exports.Users							= require('./Users');
 
 /** PREPARE DATABASE **/
-const model = require('./model');
+sql.countTables().then(function(count) {
+	if (count === 0) {
+		/** BLANK DB, CREATE FROM SCRATCH **/
+		Log.I("Creating database from scratch.");
 
-var numTables = sql.countTables();
+		model = require('./model');
 
-console.log({"numTables": numTables});
+		return sql.beginTransaction().then(function() {
+			return model.createDB();
+		}).then(function() {
+			return sql.setDatabaseVersion(model.migrateSql.length);
+		}).then(function() {
+			return sql.commit();
+		});
+	} else {
+		/** UPGRADE EXISTING DATABASE **/
 
-if (numTables === 0) {
-	/** BLANK REPO, CREATE FROM SCRATCH **/
-	err = new Error("Create from scratch not implemented.");
-
+		// Do Upgrades
+		return sql.beginTransaction().then(function() {
+			return model.upgradeDB();
+		}).then(function() {
+			return model.setDatabaseVersion();
+		}).then(function() {
+			return sql.commit();
+		});
+	}
+}).catch(function(err) {
 	Log.E(err);
 
-	throw err;
-} else {
-	/** UPGRADE EXISTING DATABASE **/
-
-	// Do Upgrades
-	sql.beginTransaction().then(function() {
-		return model.upgradeDB();
-	}).then(function() {
-		return model.setDatabaseVersion();
-	}).then(function() {
-		return sql.commit();
-	}).catch(function(err) {
-		//console.log(err.stack);
-		Log.E(err);
-
-		sql.rollbackTransaction().then(function() {
-			return sql.getDatabaseVersion(function(result) {
-				require('./model').databaseVersion = result;
-			});
+	sql.rollbackTransaction().then(function() {
+		return sql.getDatabaseVersion(function(result) {
+			require('./model').databaseVersion = result;
 		});
 	});
-}
+});
 
 module.exports.find = function(opts) {
 	var qb = new QueryBuilder();
@@ -105,6 +107,28 @@ module.exports.setDatabaseVersion = function() {
 	model = require('./model');
 
 	return sql.setDatabaseVersion(model.databaseVersion);
+};
+
+module.exports.createDB = function() {
+	model	= require('./model');
+	sql  	= require('./sql');
+
+	chain = [];
+
+	var statementIter = 0;
+
+	for (statementIter = 0; statementIter < model.createSql.length; ++statementIter) {
+		chain.push(function(statementIndex) {
+			const statement = require('./model').createSql[statementIndex].createStatement;
+			return sql.rawQueryPromise(statement).then(function() {
+				return new Q.Promise(function(resolve, reject) {
+					resolve(statementIndex + 1);
+				});
+			});
+		});
+	}
+
+	return chain.reduce(Q.when, Q(0));
 };
 
 module.exports.upgradeDB = function() {

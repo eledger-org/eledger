@@ -21,7 +21,7 @@ module.exports.rawQueryPromise = function(statement) {
 	return new Q.Promise(function(resolve, reject) {
 		mysqlc.query(statement, function (err, rows, fields) {
 			if (err) {
-				reject({"err": err, "rows": rows, "fields": fields});
+				reject({"err": err, "errstack": err.stack, "rows": rows, "fields": fields, "statement": statement});
 			} else {
 				resolve(rows);
 			}
@@ -52,10 +52,10 @@ module.exports.listTables = function() {
 };
 
 module.exports.countTables = function() {
-	return module.exports.listTables().then(function (resolution) {
-		Log.i(resolution);
-		Log.i({"resolution.length": resolution.length});
-		return resolution.length;
+	return require('./sql.js').listTables().then(function (resolution) {
+		return new Q.Promise(function(resolve, reject) {
+			resolve(resolution.length);
+		});
 	});
 };
 

@@ -12,13 +12,14 @@ CREATE TABLE UploadReadings (
 	uploadsId			BIGINT UNSIGNED		NOT NULL,
 	ocrParamsJson	VARCHAR(255)			NOT NULL,
 	dataJson			VARCHAR(60000)		NOT NULL,
-	createdDate		TIMESTAMP					DEFAULT CURRENT_TIMESTAMP,
+	createdDate		BIGINT UNSIGNED		NOT NULL,
 	createdBy			BIGINT UNSIGNED		NOT NULL,
-	modifiedDate	TIMESTAMP					DEFAULT NULL,
+	modifiedDate	BIGINT UNSIGNED		DEFAULT NULL,
 	modifiedBy		BIGINT UNSIGNED		DEFAULT NULL,
-	deletedDate		TIMESTAMP					DEFAULT NULL,
+	deletedDate		BIGINT UNSIGNED		DEFAULT NULL,
 	deletedBy			BIGINT UNSIGNED		DEFAULT NULL,
 	PRIMARY KEY (id)
+);
 `;
 
 /** SQL INITIALIZATION **/
@@ -31,7 +32,7 @@ const currentCreateSql = initialCreateSql;
 
 /** SETUP MIGRATION AND DATABASE INITIALIZATION **/
 
-model.setCreateSql('UploadReadings', initialCreateSql);
+model.addCreateSql('UploadReadings', initialCreateSql);
 
 model.setMigrateSql(4, MODEL_NAME, initialCreateSql);
 
