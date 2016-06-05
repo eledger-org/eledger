@@ -1,0 +1,10 @@
+{
+	"_comment": "It is not advised to change this file.  If you create a production.json or development.json file instead, the properties defined inside will override the properties listed here.",
+	"db": {
+		"host": "localhost",
+		"port": 3306,
+		"name": "eledger",
+		"user": "eledger",
+		"password": "changeme"
+	}
+}
