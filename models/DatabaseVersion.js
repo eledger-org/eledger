@@ -12,6 +12,10 @@ CREATE TABLE DatabaseVersion (
 	);
 `;
 
+const initialDataSql = `
+INSERT INTO DatabaseVersion (databaseVersion) VALUES (0);
+`;
+
 /** SQL INITIALIZATION **/
 
 const migrations = [];
@@ -22,7 +26,8 @@ const currentCreateSql = initialCreateSql;
 
 /** SETUP MIGRATION AND DATABASE INITIALIZATION **/
 
-model.setCreateSql(MODEL_NAME, currentCreateSql);
+model.addCreateSql(MODEL_NAME, currentCreateSql);
+model.addCreateSql(MODEL_NAME, initialDataSql);
 
 model.setMigrateSql(0, MODEL_NAME, initialCreateSql);
 
