@@ -1,7 +1,7 @@
-var express			= require('express');
-var http				= require('http');
-var path				= require('path');
-var hbs					= require('hbs');
+var express      = require('express');
+var http         = require('http');
+var path         = require('path');
+var hbs          = require('hbs');
 
 var app = express();
 
@@ -41,11 +41,11 @@ app.use('/static', express.static('static'));
 app.use('/ocr', express.static('/tmp/ocr'));
 
 var server = app.listen(3000, function() {
-	var port = server.address().port;
+  var port = server.address().port;
 
-	Log.I("Listening on port %s", port);
-	Log.I("Server initialized.");
+  Log.I("Listening on port %s", port);
+  Log.I("Server initialized.");
 
-	console.log("=".repeat(process.stdout.columns));
+  console.log("=".repeat(process.stdout.columns));
 });
 

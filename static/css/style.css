@@ -1,41 +1,41 @@
 .display-image-button {
-	display: block;
+  display: block;
 }
 
 div.table {
-	border: solid 1px black;
-	border-radius: 10px;
-	padding: 0px;
+  border: solid 1px black;
+  border-radius: 10px;
+  padding: 0px;
 }
 
 .header-row {
-	background-color: #f0f0f0;
-	border-top-left-radius: 10px;
-	border-top-right-radius: 10px;
+  background-color: #f0f0f0;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
 div.table .id-col,
 div.table .image-col,
 div.table .header-row {
-	text-align: center;
+  text-align: center;
 }
 
 .overlay-div {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	background-color: #000000;
-	height: auto;
-	width: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #000000;
+  height: auto;
+  width: auto;
 }
 
 .pagination-container
 {
-	display: table;
-	table-layout: fixed;
-	height: 100px;
-	width: 100%;
+  display: table;
+  table-layout: fixed;
+  height: 100px;
+  width: 100%;
 }
 
 
@@ -47,8 +47,8 @@ div.table .header-row {
 */
 .pagination-container div
 {
-	display: table-cell;
-	height: 100px;
-	text-align: center;
+  display: table-cell;
+  height: 100px;
+  text-align: center;
 }
 

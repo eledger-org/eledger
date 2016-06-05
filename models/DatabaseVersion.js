@@ -8,8 +8,8 @@ const MODEL_NAME = "DatabaseVersion";
 
 const initialCreateSql = `
 CREATE TABLE DatabaseVersion (
-	databaseVersion BIGINT UNSIGNED NOT NULL
-	);
+  databaseVersion BIGINT UNSIGNED NOT NULL
+  );
 `;
 
 const initialDataSql = `
@@ -36,6 +36,6 @@ model.setMigrateSql(0, MODEL_NAME, initialCreateSql);
 def_opts = {"table": MODEL_NAME};
 
 module.exports.find = function(opts) {
-	return model.find($.extend(true, {}, def_opts, opts));
+  return model.find($.extend(true, {}, def_opts, opts));
 };
 
