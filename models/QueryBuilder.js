@@ -53,7 +53,7 @@ method.queryPromise = function() {
 					err = new Error("Not sure how to create this query.");
 					err.extraInfo.queryInfo = {"query": q, "params": queryParams};
 
-					throw err;
+					reject(err);
 				}
 			}
 		}
