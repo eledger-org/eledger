@@ -1,22 +1,22 @@
-var $        = require('../util/jquery').$;
-var Log      = require('../util/log');
-var path     = require('path');
-var printf   = require('util').format;
-var Q        = require('q');
-var Uploads  = require('../models/Uploads');
+var $         = require('../util/jquery').$;
+var Log       = require('../util/log');
+var path      = require('path');
+var printf    = require('util').format;
+var Q         = require('q');
+var Uploads   = require('../models/Uploads');
 
-var opts = {};
+var opts      = {};
 
 module.exports.Index = function(request, response) {
   Uploads.find($.extend(true, {}, opts, request.query)).then(function (result) {
-    var foundUploads              = result.rows;
-    var queryInfo                  = result.queryInfo;
-    var queryBuilder              = result.queryBuilder;
+    var foundUploads          = result.rows;
+    var queryInfo             = result.queryInfo;
+    var queryBuilder          = result.queryBuilder;
 
-    response.upload                = foundUploads;
-    response.resultCount          = foundUploads.length;
-    response.paginationLimit      = queryBuilder.getLimit();
-    response.paginationOffset      = queryBuilder.getOffset();
+    response.upload           = foundUploads;
+    response.resultCount      = foundUploads.length;
+    response.paginationLimit  = queryBuilder.getLimit();
+    response.paginationOffset = queryBuilder.getOffset();
 
     return Uploads.count();
   }).then(function(result) {
