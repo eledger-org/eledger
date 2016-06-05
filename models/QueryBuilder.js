@@ -7,6 +7,7 @@ function QueryBuilder() {
   this._table         = "";
   this._joins         = [];
   this._where         = [];
+  this._orderByFields = [];
   this._limit         = 10;
   this._offset        = 0;
   this._countFields   = [];
@@ -72,6 +73,12 @@ method.queryPromise   = function() {
 
     if (qb._where.length !== 0) {
       reject("Where statements are not yet implemented.");
+    }
+
+    if (qb._orderByFields.length !== 0) {
+      q = q + "ORDER BY ??";
+
+      queryParams.push(qb._orderByFields);
     }
 
     if (qb._limit !== undefined) {
@@ -178,6 +185,7 @@ method.count = function(countFields) {
       this._countFields.push(countFields);
     }
   } else {
+    Log.E("This type is not tested nor implemented.");
     throw new Error("Not tested nor implemented.");
   }
 
@@ -185,6 +193,19 @@ method.count = function(countFields) {
   this._offset = undefined;
 
   return this;
+};
+
+method.orderBy = function(orderByFields) {
+  if (orderByFields === undefined) {
+    Log.E("Tried to order by an undefined field.");
+  } else if (typeof orderByFields === "string") {
+    this._orderByFields.push(orderByFields);
+  } else if (Array.isArray(orderByFields)) {
+    this._orderByFields = $.extend(true, {}, this._orderByFields, orderByFields);
+  } else {
+    Log.E("This type is not tested nor implemented.");
+    throw new Error("Not tested nor implemented.");
+  }
 };
 
 module.exports = QueryBuilder;
