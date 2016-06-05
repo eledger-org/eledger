@@ -22,6 +22,10 @@ Log.i(new TypeError("Cannot read property 'length' of undefined"));
 // Initialize all the models.
 require('./models/model');
 
+Log.I("Finished initializing the database.");
+
+console.log("=".repeat(process.stdout.columns));
+
 require('./router')(app);
 
 hbs.registerPartials(__dirname + "/views/templates");
@@ -40,6 +44,7 @@ var server = app.listen(3000, function() {
 	var port = server.address().port;
 
 	Log.I("Listening on port %s", port);
+	Log.I("Server initialized.");
 
 	console.log("=".repeat(process.stdout.columns));
 });
