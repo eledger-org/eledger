@@ -1,0 +1,64 @@
+<div class="pagination-container">
+	<div class="pagination-prev">
+		prev
+	</div>
+	<div class="pagination-info">
+		{{paginationSummary}}
+	</div>
+	<div class="pagination-next">
+		next
+	</div>
+
+	<script type="text/javascript">
+		var pLimit								= "{{paginationLimit}}";
+		var pOffset								= "{{paginationOffset}}";
+		var paginationTotalCount	= "{{paginationTotalCount}}";
+
+		if (pLimit !== undefined &&
+				pLimit !== "undefined") {
+			pLimit = parseInt(pLimit);
+		} else {
+			pLimit = undefined;
+		}
+
+		if (paginationTotalCount !== undefined &&
+				paginationTotalCount !== "undefined") {
+			paginationTotalCount = parseInt(paginationTotalCount);
+		} else {
+			paginationTotalCount = undefined;
+		}
+
+		if (pOffset !== undefined &&
+				pOffset !== "undefined") {
+			pOffset = parseInt(pOffset);
+		} else {
+			pOffset = undefined;
+		}
+
+		function pageNext() {
+			if (pOffset !== undefined && pOffset < paginationTotalCount) {
+				newOffset = Math.min(paginationTotalCount - pLimit, pOffset + pLimit);
+
+				if (pOffset != newOffset) {
+					reloadWithAdditionalParameters({"offset": newOffset});
+				}
+			}
+
+		}
+
+		function pagePrev() {
+			if (pOffset !== undefined && pOffset > 0) {
+				newOffset = Math.max(0, pOffset - pLimit);
+
+				if (pOffset != newOffset) {
+					reloadWithAdditionalParameters({"offset": newOffset});
+				}
+			}
+		}
+
+		$(document).ready(function() {
+			$('.pagination-prev').click(pagePrev);
+			$('.pagination-next').click(pageNext);
+		});
+	</script>
+</div>

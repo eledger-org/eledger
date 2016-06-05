@@ -1,0 +1,44 @@
+<div id="container">
+	<div class="table">
+		<div class="row row-fluid row-header header-row">
+			<div class="col-xs-1 id-col-header">
+				id
+			</div>
+			<div class="col-xs-2 image-button-col-header">
+				Image Button
+			</div>
+			<div class="col-xs-4 unique-id-col-header">
+				Unique ID
+			</div>
+			<div class="col-xs-4 datetime-col-header">
+				Date/Time
+			</div>
+		</div>
+		{{#each upload}}
+			<div class="row row-fluid" row-id="{{id}}">
+				<div class="col-xs-1 id-col">
+					{{id}}
+				</div>
+				<div class="col-xs-2 image-button-col">
+					<input class="display-image-button" type="button" value="Display Image" linked-id="{{uniqid}}" filename="{{filename}}" />
+				</div>
+				<div class="col-xs-4 unique-id-col">
+					{{uniqid}}
+				</div>
+				<div class="col-xs-4 datetime-col">
+					{{dt}}
+				</div>
+			</div>
+		{{/each}}
+	</div>
+	<div>
+		{{resultCount}} / {{tableCount}}
+	</div>
+	{{> pagination}}
+</div>
+
+<div class="overlay-div" id="overlay">
+	<img class="overlay-image" id="overlay-image" />
+</div>
+
+<script src="/static/js/file-upload.js"></script>
