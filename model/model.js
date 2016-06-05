@@ -46,7 +46,7 @@ module.exports.setMigrateSql = function(versionIntFrom, modelName, migrateStatem
 
 module.exports.DatabaseVersion		= require('./DatabaseVersion');
 module.exports.Uploads						= require('./Uploads');
-//module.exports.UploadData					= require('./UploadData');
+//module.exports.UploadReadings			= require('./UploadReadings');
 //module.exports.Users							= require('./Users');
 
 /** PREPARE DATABASE **/
