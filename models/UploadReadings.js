@@ -32,7 +32,7 @@ const currentCreateSql = initialCreateSql;
 
 /** SETUP MIGRATION AND DATABASE INITIALIZATION **/
 
-model.addCreateSql('UploadReadings', initialCreateSql);
+model.addCreateSql(MODEL_NAME, initialCreateSql);
 
 model.setMigrateSql(4, MODEL_NAME, initialCreateSql);
 
