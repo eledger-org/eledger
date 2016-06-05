@@ -1,23 +1,16 @@
-.display-image-button {
-  display: block;
-}
-
-div.table {
-  border: solid 1px black;
-  border-radius: 10px;
-  padding: 0px;
-}
-
-.header-row {
-  background-color: #f0f0f0;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-}
-
 div.table .id-col,
 div.table .image-col,
 div.table .header-row {
   text-align: center;
+}
+
+.overlay-tint {
+  position: absolute;
+  top: 0%;
+  left: 0%;
+  background: rgba(0, 0, 0, 0.3);
+  height: 100%;
+  width: 100%;
 }
 
 .overlay-div {
