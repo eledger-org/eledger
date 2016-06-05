@@ -3,7 +3,7 @@ var Log			= require('../util/log');
 var path		= require('path');
 var printf	= require('util').format;
 var Q				= require('q');
-var Uploads	= require('../model/Uploads');
+var Uploads	= require('../models/Uploads');
 
 var opts = {};
 

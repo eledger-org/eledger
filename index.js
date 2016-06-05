@@ -20,7 +20,7 @@ Log.i(new TypeError("Cannot read property 'length' of undefined"));
 */
 
 // Initialize all the models.
-require('./model/models');
+require('./models/model');
 
 require('./router')(app);
 
