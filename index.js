@@ -1,7 +1,7 @@
-var express      = require('express');
-var http         = require('http');
-var path         = require('path');
-var hbs          = require('hbs');
+var express       = require('express');
+var http          = require('http');
+var path          = require('path');
+var hbs           = require('hbs');
 
 var app = express();
 
