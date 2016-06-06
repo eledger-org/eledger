@@ -5,11 +5,11 @@
         <th class="col-xs-1 id-col-header">
           id
         </th>
+        <th class="col-xs-4 file-path-col-header">
+          Filenames
+        </th>
         <th class="col-xs-1 image-button-col-header">
           View Image
-        </th>
-        <th class="col-xs-4 unique-id-col-header">
-          Unique ID
         </th>
         <th class="col-xs-4 datetime-col-header">
           Date/Time
@@ -22,11 +22,11 @@
         <td class="col-xs-1 id-col">
           {{id}}
         </td>
+        <td class="col-xs-4 file-path-col">
+          {{filename}}
+        </td>
         <td class="col-xs-1 image-button-col">
           <input class="btn btn-primary display-image-button" type="button" value="View" linked-id="{{uniqid}}" filename="{{filename}}" />
-        </td>
-        <td class="col-xs-4 unique-id-col">
-          {{uniqid}}
         </td>
         <td class="col-xs-4 datetime-col">
           {{dt}}

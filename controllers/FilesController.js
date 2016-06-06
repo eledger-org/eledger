@@ -1,9 +1,10 @@
-var $         = require('../util/jquery').$;
-var Log       = require('../util/log');
-var path      = require('path');
-var printf    = require('util').format;
-var Q         = require('q');
-var Uploads   = require('../models/Uploads');
+var $           = require('../util/jquery').$;
+var Log         = require('../util/log');
+var path        = require('path');
+var printf      = require('util').format;
+var Q           = require('q');
+var Uploads     = require('../models/Uploads');
+var Pagination  = require('../util/pagination');
 
 var opts      = {};
 
@@ -24,9 +25,20 @@ module.exports.Index = function(request, response) {
 
     return new Q.Promise(function(resolve, reject) {
       try {
-        response.tableCount = uploadCount[0].count;
-        response.paginationTotalCount  = response.tableCount;
-        response.paginationSummary = printf("%d through %d of %d", response.paginationOffset, response.paginationOffset + response.resultCount, response.paginationTotalCount);
+        var pagination            = new Pagination();
+
+        pagination.setLimit(response.paginationLimit);
+        pagination.setOffset(response.paginationOffset);
+        pagination.setCount(uploadCount[0].count);
+
+        //response.pages = pagination.buildPages();
+        pagination.buildPages();
+        response.pagination = pagination;
+
+        response.paginationLimit = undefined;
+        response.paginationOffset = undefined;
+
+        Log.I(response);
         response.render('file/Index', response);
 
         resolve(null);

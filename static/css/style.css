@@ -23,6 +23,7 @@ div.table .header-row {
   width: auto;
 }
 
+/*
 .pagination-container
 {
   display: table;
@@ -30,18 +31,5 @@ div.table .header-row {
   height: 100px;
   width: 100%;
 }
-
-
-/*
-.pagination-prev,
-.pagination-next,
-.pagination-limit,
-.pagination-offset
 */
-.pagination-container div
-{
-  display: table-cell;
-  height: 100px;
-  text-align: center;
-}
 
