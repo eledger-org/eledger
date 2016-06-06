@@ -46,13 +46,15 @@ model.setMigrateSql(2, MODEL_NAME, migrations[0]);
 
 /** MODEL FUNCTIONS **/
 
-def_opts = {"table": TABLE_NAME};
-
 module.exports.find = function(opts) {
-  return model.find($.extend(true, {}, def_opts, opts));
+  require('./Uploads').def_opts = {"table": TABLE_NAME};
+
+  return model.find($.extend(true, {}, require('./Uploads').def_opts, opts));
 };
 
 module.exports.count = function(opts) {
-  return model.count($.extend(true, {}, def_opts, opts));
+  require('./Uploads').def_opts = {"table": TABLE_NAME};
+
+  return model.count($.extend(true, {}, require('./Uploads').def_opts, opts));
 };
 

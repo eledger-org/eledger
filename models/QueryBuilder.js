@@ -72,7 +72,14 @@ method.queryPromise   = function() {
     }
 
     if (qb._where.length !== 0) {
-      reject("Where statements are not yet implemented.");
+      q = q + " WHERE";
+
+      for (whereIter = 0; whereIter < qb._where.length; ++whereIter) {
+        q = q + " ?? OPERAND ?".replace(/(OPERAND)/, qb._where[whereIter].operand);
+
+        queryParams.push(qb._where[whereIter].columnName);
+        queryParams.push(qb._where[whereIter].value);
+      }
     }
 
     if (qb._orderByFields.length !== 0) {
@@ -157,6 +164,27 @@ method.from = function(table) {
 
     return this;
   }
+};
+
+method.where = function(where) {
+  if (!Array.isArray(where) || where.length <= 0) {
+    Log.E(where);
+    Log.E("Please pass an array like [{\"columnName\": \"id\", \"value\": 1, \"operand\": \"=\"}] to create WHERE id = 1");
+
+    return this;
+  } else {
+    for (whereIter = 0; whereIter < where.length; ++whereIter) {
+      wh = where[whereIter];
+
+      if (wh.columnName !== undefined && wh.value !== undefined && wh.operand !== undefined) {
+        if (wh.operand === "=" || wh.operand === "LIKE") {
+          this._where.push(wh);
+        }
+      }
+    }
+  }
+
+  return this;
 };
 
 method.limit = function(offset, limit) {

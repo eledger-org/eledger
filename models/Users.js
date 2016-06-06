@@ -8,9 +8,9 @@ const MODEL_NAME = "Users";
 
 const initialCreateSql = `
 CREATE TABLE users (
-  id              BIGINT unsigned    NOT NULL AUTO_INCREMENT,
+  id              BIGINT unsigned   AUTO_INCREMENT,
   name            VARCHAR(255)      NOT NULL,
-  email            VARCHAR(255)      NOT NULL,
+  email           VARCHAR(255)      NOT NULL,
   createdDate     BIGINT UNSIGNED   NOT NULL,
   createdBy       BIGINT UNSIGNED   NOT NULL,
   modifiedDate    BIGINT UNSIGNED   DEFAULT NULL,
@@ -37,13 +37,15 @@ model.setMigrateSql(3, MODEL_NAME, initialCreateSql);
 
 /** MODEL FUNCTIONS **/
 
-def_opts = {"table": TABLE_NAME};
-
 module.exports.find = function(opts) {
-  return model.find($.extend(true, {}, def_opts, opts));
+  require('./Users').def_opts = {"table": TABLE_NAME};
+
+  return model.find($.extend(true, {}, require('./Users').def_opts, opts));
 };
 
 module.exports.count = function(opts) {
-  return model.count($.extend(true, {}, def_opts, opts));
+  require('./Users').def_opts = {"table": TABLE_NAME};
+
+  return model.count($.extend(true, {}, require('./Users').def_opts, opts));
 };
 

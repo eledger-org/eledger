@@ -19,12 +19,14 @@
   },
   "homepage": "https://github.com/eledger-org/eledger#readme",
   "dependencies": {
+    "body-parser": "^1.15.1",
     "circular-json": "^0.3.0",
     "config": "^1.21.0",
     "express": "^4.13.4",
     "hbs": "^4.0.0",
     "jquery": "^2.2.4",
     "jsdom": "^9.2.1",
+    "json": "^9.0.4",
     "mysql": "^2.10.2",
     "q": "^1.4.1"
   }

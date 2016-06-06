@@ -80,3 +80,4 @@ $(document).ready(function() {
     $(this).attr("href", buildLink(window.location.pathname, page($(this).attr("pageNumber"))));
   });
 });
+

@@ -1,21 +1,22 @@
-var $         = require('../util/jquery').$;
-var Log       = require('../util/log');
-var path      = require('path');
-var printf    = require('util').format;
-var Q         = require('q');
-var Uploads   = require('../models/Uploads');
-var Pagination  = require('../util/pagination');
+var $                 = require('../util/jquery').$;
+var Log               = require('../util/log');
+var path              = require('path');
+var printf            = require('util').format;
+var Q                 = require('q');
+var Uploads           = require('../models/Uploads');
+var UploadReadings    = require('../models/UploadReadings');
+var Pagination        = require('../util/pagination');
+
+var uploadsOpts = {
+  "fields": [
+    "id",
+    "filename",
+    "dt"
+  ]
+};
 
 module.exports.Index = function(request, response) {
-  var opts      = {
-    "fields": [
-      "id",
-      "filename",
-      "dt"
-    ]
-  };
-
-  Uploads.find($.extend(true, {}, opts, request.query)).then(function (result) {
+  Uploads.find($.extend(true, {}, uploadsOpts, request.query)).then(function (result) {
     var foundUploads          = result.rows;
     var queryInfo             = result.queryInfo;
     var queryBuilder          = result.queryBuilder;
@@ -63,12 +64,57 @@ module.exports.Index = function(request, response) {
   return this;
 };
 
-module.exports.GetFile = function(request, response) {
-  response.send('/static/uploads/' + request.params.id);
+module.exports.ProofById = function(request, response) {
+  var byIdOpts = $.extend(true, {}, uploadsOpts, request.query);
 
-  return this;
+  byIdOpts.limit = 1;
+  byIdOpts.where = [
+    {
+      "columnName": "id",
+      "value": request.params.id,
+      "operand": "="
+    }
+  ];
+
+  Log.I(byIdOpts);
+  Uploads.find(byIdOpts).then(function (result) {
+    return new Q.Promise(function(resolve, reject) {
+      resolve(result.rows[0]);
+    });
+  }).then(function(result) {
+    return new Q.Promise(function(resolve, reject) {
+      Log.I(result);
+      response.result = result;
+      response.render('proofs/Proof', response);
+
+      resolve();
+    });
+  }).catch(function(rejection) {
+    response.status(500);
+
+    url = request.url;
+    response.render('errors/500');
+    Log.E(rejection);
+  });;
 };
 
-module.exports.ProofById = function(request, response) {
+module.exports.SaveById = function(request, response) {
+  Log.I(request.body);
+
+  UploadReadings.save({
+    id: request.params.id,
+    ocrParamsJson: {proof: true},
+    dataJson: request.body
+  }).then(function() {
+    response.status(200);
+    response.send("OK");
+  }).catch(function(rejection) {
+    response.status(500);
+
+    url = request.url;
+    response.render('errors/500');
+    Log.E(rejection);
+  });
+
 };
 

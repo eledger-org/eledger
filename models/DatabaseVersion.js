@@ -33,9 +33,9 @@ model.setMigrateSql(0, MODEL_NAME, initialCreateSql);
 
 /** MODEL FUNCTIONS **/
 
-def_opts = {"table": MODEL_NAME};
-
 module.exports.find = function(opts) {
-  return model.find($.extend(true, {}, def_opts, opts));
+  require('./DatabaseVersion').def_opts = {"table": MODEL_NAME};
+
+  return model.find($.extend(true, {}, require('./DatabaseVersion').def_opts, opts));
 };
 

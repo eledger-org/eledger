@@ -47,8 +47,8 @@ module.exports.setMigrateSql = function(versionIntFrom, modelName, migrateStatem
 
 module.exports.DatabaseVersion    = require('./DatabaseVersion');
 module.exports.Uploads            = require('./Uploads');
-//module.exports.UploadReadings      = require('./UploadReadings');
-//module.exports.Users              = require('./Users');
+module.exports.UploadReadings     = require('./UploadReadings');
+module.exports.Users              = require('./Users');
 
 /** PREPARE DATABASE **/
 sql.countTables().then(function(count) {
@@ -90,7 +90,7 @@ sql.countTables().then(function(count) {
 module.exports.find = function(opts) {
   var qb = new QueryBuilder();
 
-  return qb.select(opts.fields).from(opts.table).limit(opts.offset, opts.limit).queryPromise();
+  return qb.select(opts.fields).from(opts.table).where(opts.where).limit(opts.offset, opts.limit).queryPromise();
 };
 
 module.exports.count = function(opts) {
