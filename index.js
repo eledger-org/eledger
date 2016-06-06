@@ -29,6 +29,9 @@ console.log("=".repeat(process.stdout.columns));
 require('./router')(app);
 
 hbs.registerPartials(__dirname + "/views/templates");
+hbs.registerHelper('json', function(obj) {
+  return JSON.stringify(obj);
+});
 
 app.set('view options', { layout: 'layouts/main' });
 app.set('views', path.join(__dirname, 'views'));
