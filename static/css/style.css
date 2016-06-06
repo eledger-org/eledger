@@ -23,6 +23,21 @@ div.table .header-row {
   width: auto;
 }
 
+div.center {
+  text-align: center;
+}
+
+div.controls {
+  text-align: center;
+  overflow: auto;
+}
+
+div.controls a {
+  top: 0%;
+  left: 50%;
+  transform: translate(-50%, 0%);
+}
+
 /*
 .pagination-container
 {
