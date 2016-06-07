@@ -89,11 +89,19 @@ function drawScaledImage(image, canvas, context, selection) {
   var scaledImageWidth  = (selection.x2 - selection.x1) / scale;
   var scaledImageHeight = (selection.y2 - selection.y1) / scale;
 
-  /*
   // In theory, I'd like to stretch the image more intelligently in the future
   var mockImage = {width: scaledImageWidth, height: scaledImageHeight};
-  var newScale = getScalingFactor(mockImage, canvas);
-  */
+
+  var h1 = scaledImageHeight;
+  var h2 = canvas.height();
+  var w1 = scaledImageWidth;
+  var w2 = canvas.width();
+
+  if (w1 / h1 > w2 / h2) {
+    h2 = h2 / ((w1 / h1) / (w2 / h2));
+  } else {
+    w2 = w2 * ((w1 / h1) / (w2 / h2));
+  }
 
   var scaledImageLeft   = selection.x1 / scale;
   var scaledImageTop    = selection.y1 / scale;
@@ -106,8 +114,8 @@ function drawScaledImage(image, canvas, context, selection) {
       scaledImageHeight,
       0,
       0,
-      canvas.width(),
-      canvas.height());
+      w2,
+      h2);
 
   canvas.imgAreaSelect({remove: true});
 
