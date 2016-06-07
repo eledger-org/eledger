@@ -1,3 +1,54 @@
+var canvas = $('#proofing-canvas');
+var context = undefined;
+
+/** TODO Move this logic to some database based templating setup so that users can control templates **/
+var proofingInputTemplates = {
+  "receipt": [
+    "Vendor",
+    "Zip",
+    "Date",
+    "Subtotal",
+    "Taxes",
+    "Tip",
+    "Total",
+    "VendorID",
+    "CCLast4"
+  ]
+};
+
+var proofingInputTemplatesGenerators = {
+  Vendor: test,
+  Zip: test,
+  Date: test,
+  Subtotal: test,
+  Taxes: test,
+  Tip: test,
+  Total: test,
+  VendorID: test,
+  CCLast4: test
+};
+
+/*
+    for (field in proofingInputTemplates[inputId]) {
+      for (htmlElement in proofingInputTemplatesGenerators[field]) {
+        inputDiv.add(htmlElement.tag);
+*/
+
+if (canvas !== undefined &&
+    canvas[0] !== undefined) {
+  var context = canvas[0].getContext('2d');
+}
+
+function test(parentElement, thisId) {
+  var vendorInputDiv = parentElement.append(
+    '<div class="row nopadding">' +
+      '<label for="' + thisId + '">' + thisId + ':</label>' +
+    '</div>' +
+    '<div class="row nopadding">' +
+      '<input id="' + thisId + '" type="text">' +
+    '</div>');
+}
+
 function set_body_height() {
   var controlHeight           = $('#crop-control').outerHeight(true);
   var windowWidth             = $(window).width();
@@ -22,17 +73,12 @@ function set_body_height() {
   $('#proofing-canvas')
     .attr('height', proofingViewportHeight - 3)
     .attr('width',  $('#proofing-viewport').width());
-
-/*
-  $('#proofing-viewport')
-    .attr('height', windowHeight - controlHeight - 10)
-    .attr('style', "background-color: black");
-
-  $('#proofing-input')
-    .attr('height', windowHeight - (2 * controlHeight))
-    .attr('style', "background-color: black");
-  */
 }
+
+set_body_height();
+set_body_height();
+
+$(window).bind('resize', function() { set_body_height(); });
 
 function setSelection(img, _selection) {
   window.proofingImageSelection = _selection;
@@ -140,21 +186,15 @@ function drawScaledImage(image, canvas, context, selection) {
   save();
 }
 
-set_body_height();
-set_body_height();
-
-$(window).bind('resize', function() { set_body_height(); });
-
-var canvas = $('#proofing-canvas');
-var context = undefined;
-if (canvas !== undefined &&
-    canvas[0] !== undefined) {
-  var context = canvas[0].getContext('2d');
-}
-
 $(document).ready(function() {
   canvas = $('#proofing-canvas');
   context = canvas[0].getContext('2d');
+
+  $('#header-controls').children('a').each(function() {
+    $(this).click(function() {
+      generateProofingInputs($(this).attr('id'));
+    });
+  });
 
   $.ajax({
     url: "/api/get-file/" + $('#proofing-canvas').attr('filename'),
@@ -187,6 +227,10 @@ $(document).ready(function() {
       $('#crop-control').click(cropControlClick);
     }
   });
+
+  /** TODO detect the last recorded file type and use that **/
+  /** TODO 2 If can't detect (i.e. never visited before) assume user.defaultType or something **/
+  generateProofingInputs("receipt");
 });
 
 function cropControlClick() {
@@ -210,6 +254,33 @@ function cropControlClick() {
     canvas.imgAreaSelect({remove: true});
 
     image.cropped = true;
+  }
+}
+
+function generateProofingInputs(inputId) {
+  if (proofingInputTemplates[inputId] === undefined) {
+    console.log("No match for %s", inputId);
+    return;
+  }
+
+  var inputDiv = $('#proofing-input');
+
+  for (i = 0; i < proofingInputTemplates[inputId].length; ++i) {
+    var fieldName = proofingInputTemplates[inputId][i];
+    var callback = proofingInputTemplatesGenerators[fieldName];
+    console.log(callback);
+    if (callback) {
+      console.log("Running");
+      callback(inputDiv, fieldName);
+    }
+          /*
+  "Vendor": function(parentElement) {
+    var vendorInputDiv = parentElement.add('div');
+
+    var vendorInputLabel = vendorInputDiv.add('label').attr('for', 'Vendor').val('Vendor:');
+    var vendorInput = vendorInputDiv.add('input').id('Vendor');
+    }
+    */
   }
 }
 
