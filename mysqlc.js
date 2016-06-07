@@ -33,10 +33,31 @@ if (process.env.NODE_ENV === "development") {
   Log.i("Launching eledger as " + process.env.NODE_ENV);
 }
 
-exports.mysqlc = mysql.createConnection({
-  password: config.get("db.password"),
-  host: config.get("db.host"),
-  user: config.get("db.user"),
-  database: config.get("db.name"),
-});
+function connect() {
+  exports.mysqlc = mysql.createConnection({
+    password: config.get("db.password"),
+    host: config.get("db.host"),
+    user: config.get("db.user"),
+    database: config.get("db.name"),
+  });
+
+  require('./mysqlc').mysqlc.connect(function(err) {
+    if (err) {
+      Log.E(err);
+      setTimeout(connect, 2000);
+    }
+  });
+
+  require('./mysqlc').mysqlc.on('error', function(err) {
+    Log.E(err);
+
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      connect();
+    } else {
+      throw err;
+    }
+  });
+}
+
+connect();
 
