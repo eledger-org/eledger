@@ -28,6 +28,19 @@
   </div>
 </div>
 
+<script type="text/javascript">
+var readings = {{{json readings}}};
+
+if (readings !== undefined &&
+    readings[0] !== undefined &&
+    readings[0].dataJson !== undefined)
+{
+  console.log(readings);
+  console.log(readings[0]);
+  console.log(readings[0].dataJson);
+}
+</script>
+
 <script type="text/javascript" src="/static/js/proof.js"></script>
 
 <script type="text/javascript" src="/static/js/jquery.imgareaselect.js"></script>

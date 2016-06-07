@@ -2,7 +2,7 @@ var $     = require('../util/jquery').$;
 var model = require('./model');
 var sql   = require('./sql');
 
-const TABLE_NAME = "uploadReadings";
+const TABLE_NAME = "UploadReadings";
 const MODEL_NAME = "UploadReadings";
 
 /** SQL INITIALIZATION **/
@@ -75,7 +75,7 @@ module.exports.count = function(opts) {
 module.exports.save = function(readings) {
   require('./UploadReadings').def_opts = {"table": TABLE_NAME};
 
-  return sql.rawQueryPromise("SELECT id FROM UploadReadings WHERE ocrParamsJson->\"$.proof\" = true;").then(function(result) {
+  return sql.rawQueryPromise("SELECT id FROM UploadReadings WHERE ocrParamsJson->\"$.proof\" = true AND uploadsId = " + readings.id + ";").then(function(result) {
     console.log(result);
 
     if (result.length === 0) {

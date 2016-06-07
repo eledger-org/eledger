@@ -75,10 +75,23 @@ method.queryPromise   = function() {
       q = q + " WHERE";
 
       for (whereIter = 0; whereIter < qb._where.length; ++whereIter) {
-        q = q + " ?? OPERAND ?".replace(/(OPERAND)/, qb._where[whereIter].operand);
+        append_q = "";
 
-        queryParams.push(qb._where[whereIter].columnName);
+        if (whereIter > 0) {
+          append_q += " AND";
+        }
+
+        append_q += " ?? OPERAND ?".replace(/(OPERAND)/, qb._where[whereIter].operand);
+
+        if (qb._where[whereIter].columnNameTextReplace) {
+          append_q = append_q.replace(/\?\?/, qb._where[whereIter].columnName);
+        } else {
+          queryParams.push(qb._where[whereIter].columnName);
+        }
+
         queryParams.push(qb._where[whereIter].value);
+
+        q = q + append_q;
       }
     }
 
@@ -197,7 +210,11 @@ method.limit = function(offset, limit) {
   this._limit = 10;
 
   if (limit !== undefined) {
-    this._limit = limit;
+    if (isNaN(limit)) {
+      this._limit = undefined;
+    } else {
+      this._limit = limit;
+    }
   }
 
   return this;

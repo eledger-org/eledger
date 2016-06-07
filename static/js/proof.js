@@ -66,6 +66,22 @@ function save() {
   });
 }
 
+function applyLoadedSelection() {
+  setSelection(null, getSelection());
+
+  cropControlClick();
+}
+
+function getSelection() {
+  if (readings === undefined ||
+      readings.length === 0 ||
+      readings[0].dataJson === undefined) {
+    return undefined;
+  }
+
+  return JSON.parse(readings[0].dataJson).selection;
+}
+
 function resetCanvas() {
   var canvas  = $('#proofing-canvas');
   var context = canvas[0].getContext('2d');
@@ -129,13 +145,23 @@ set_body_height();
 
 $(window).bind('resize', function() { set_body_height(); });
 
+var canvas = $('#proofing-canvas');
+var context = undefined;
+if (canvas !== undefined &&
+    canvas[0] !== undefined) {
+  var context = canvas[0].getContext('2d');
+}
+
 $(document).ready(function() {
+  canvas = $('#proofing-canvas');
+  context = canvas[0].getContext('2d');
+
   $.ajax({
     url: "/api/get-file/" + $('#proofing-canvas').attr('filename'),
     async: true,
     success: function(responseText) {
-      var canvas  = $('#proofing-canvas');
-      var context = canvas[0].getContext('2d');
+      canvas  = $('#proofing-canvas');
+      context = canvas[0].getContext('2d');
 
       image = new Image();
       image.src = responseText;
@@ -143,7 +169,11 @@ $(document).ready(function() {
       canvas.imgAreaSelect({onSelectEnd: setSelection });
 
       image.onload = function() {
-        resetCanvas();
+        if (getSelection()) {
+          applyLoadedSelection();
+        } else {
+          resetCanvas();
+        }
       };
 
       window.proofingImage = image;
@@ -154,30 +184,32 @@ $(document).ready(function() {
         }
       });
 
-      $('#crop-control').click(function() {
-        if (image.cropped === true) {
-          resetCanvas();
-        } else if (window.proofingImageSelection !== undefined) {
-          drawScaledImage(image, canvas, context, window.proofingImageSelection);
-
-          return;
-          var selection = window.proofingImageSelection;
-          var scale = getScalingFactor(image, canvas);
-
-          context.clearRect(0, 0, canvas.width(), canvas.height());
-          context.drawImage(image,
-              selection.x1 / scale,
-              selection.y1 / scale,
-              (selection.x2 - selection.x1) / scale,
-              (selection.y2 - selection.y1) / scale,
-              0, 0, canvas.width(), canvas.height());
-
-          canvas.imgAreaSelect({remove: true});
-
-          image.cropped = true;
-        }
-      });
+      $('#crop-control').click(cropControlClick);
     }
   });
 });
+
+function cropControlClick() {
+  if (image.cropped === true) {
+    resetCanvas();
+  } else if (window.proofingImageSelection !== undefined) {
+    drawScaledImage(image, canvas, context, window.proofingImageSelection);
+
+    return;
+    var selection = window.proofingImageSelection;
+    var scale = getScalingFactor(image, canvas);
+
+    context.clearRect(0, 0, canvas.width(), canvas.height());
+    context.drawImage(image,
+        selection.x1 / scale,
+        selection.y1 / scale,
+        (selection.x2 - selection.x1) / scale,
+        (selection.y2 - selection.y1) / scale,
+        0, 0, canvas.width(), canvas.height());
+
+    canvas.imgAreaSelect({remove: true});
+
+    image.cropped = true;
+  }
+}
 

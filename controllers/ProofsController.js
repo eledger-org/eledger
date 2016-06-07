@@ -15,6 +15,9 @@ var uploadsOpts = {
   ]
 };
 
+var uploadReadingOpts = {
+};
+
 module.exports.Index = function(request, response) {
   Uploads.find($.extend(true, {}, uploadsOpts, request.query)).then(function (result) {
     var foundUploads          = result.rows;
@@ -79,12 +82,33 @@ module.exports.ProofById = function(request, response) {
   Log.I(byIdOpts);
   Uploads.find(byIdOpts).then(function (result) {
     return new Q.Promise(function(resolve, reject) {
+      response.result = result.rows[0];
+
       resolve(result.rows[0]);
     });
   }).then(function(result) {
+    var uploadReadingsOpts = $.extend(true, {}, uploadReadingsOpts, request.query);
+
+    uploadReadingsOpts.limit = NaN;
+    uploadReadingsOpts.where = [
+      {
+        "columnName": "uploadsId",
+        "value": request.params.id,
+        "operand": "="
+      },
+      {
+        "columnNameTextReplace": true,
+        "columnName": "ocrParamsJson->\"$.proof\"",
+        "value": true,
+        "operand": "="
+      }
+    ];
+
+    return UploadReadings.find(uploadReadingsOpts);
+  }).then(function(result) {
     return new Q.Promise(function(resolve, reject) {
       Log.I(result);
-      response.result = result;
+      response.readings = result.rows;
       response.render('proofs/Proof', response);
 
       resolve();
@@ -105,7 +129,9 @@ module.exports.SaveById = function(request, response) {
     id: request.params.id,
     ocrParamsJson: {proof: true},
     dataJson: request.body
-  }).then(function() {
+  }).then(function(result) {
+    console.log(result);
+
     response.status(200);
     response.send("OK");
   }).catch(function(rejection) {
