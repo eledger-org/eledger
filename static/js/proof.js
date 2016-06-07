@@ -1,12 +1,37 @@
 function set_body_height() {
-  var controls = $('#controls');
+  var controlHeight           = $('#crop-control').outerHeight(true);
+  var windowWidth             = $(window).width();
+  var windowHeight            = $(window).height();
 
-  var proofingImageHeight = $(window).height() - controls.height();
+  var proofingInputWidth      = $('#proofing-input-container').css('width');
+  var proofingInputHeight     = windowHeight - (2 * controlHeight);
+  var proofingViewportWidth   = $('#proofing-viewport').width();
+  var proofingViewportHeight  = windowHeight - controlHeight;
 
-  //$('#proofing-image').css({height: proofingImageHeight + "px"});
+  $('.controls').attr('height', controlHeight);
+
+  $('#proofing-input-container')
+    .height(proofingInputHeight);
+
+  $('#proofing-input')
+    .height(proofingInputHeight)
+    .width(proofingInputWidth);
+
+  $('#proofing-viewport').height(proofingViewportHeight);
+
   $('#proofing-canvas')
-    .attr('height', $(window).height() - controls.height() - 1)
-    .attr('width', $('#controls').width());
+    .attr('height', proofingViewportHeight - 3)
+    .attr('width',  $('#proofing-viewport').width());
+
+/*
+  $('#proofing-viewport')
+    .attr('height', windowHeight - controlHeight - 10)
+    .attr('style', "background-color: black");
+
+  $('#proofing-input')
+    .attr('height', windowHeight - (2 * controlHeight))
+    .attr('style', "background-color: black");
+  */
 }
 
 function setSelection(img, _selection) {
@@ -91,6 +116,7 @@ function drawScaledImage(image, canvas, context, selection) {
   save();
 }
 
+set_body_height();
 set_body_height();
 
 $(window).bind('resize', function() { set_body_height(); });

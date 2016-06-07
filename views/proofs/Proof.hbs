@@ -1,14 +1,27 @@
 <div id="container">
-  <div style="height: 100%">
-    <div class="col-xs-4 proofing-container">
-      a
-      b
+  <div class="row nopadding">
+    <div id="header-controls" class="col-xs-4 controls nopadding">
+      <a id="x" class="page-link"><i class="icon ion-crop"></i></a>
+      <a id="x" class="page-link"><i class="icon ion-crop"></i></a>
+      <a id="x" class="page-link"><i class="icon ion-crop"></i></a>
+      <a id="x" class="page-link"><i class="icon ion-crop"></i></a>
+      <a id="x" class="page-link"><i class="icon ion-crop"></i></a>
+      <a id="x" class="page-link"><i class="icon ion-crop"></i></a>
     </div>
-    <div class="center col-xs-8 file-image-container">
-      <div id="controls" class="center controls">
-        <a id="crop-control" class="page-link"><i class="icon ion-crop"></i></a>
+    <div class="col-xs-8 controls nopadding">
+      <a id="crop-control" class="page-link"><i class="icon ion-crop"></i></a>
+    </div>
+  </div>
+  <div class="row nopadding">
+    <div id="proofing-input-container" class="col-xs-4 proofing-input-container nopadding">
+      <div id="proofing-input" class="col-xs-4 proofing-input nopadding">
       </div>
-      <div id="proofing-viewport">
+      <div id="footer-controls" class="col-xs-4 controls nopadding">
+        <a id="x" class="page-link"><i class="icon ion-crop"></i></a>
+      </div>
+    </div>
+    <div id="proofing-image-container" class="col-xs-8 proofing-image-container nopadding">
+      <div id="proofing-viewport" class="proofing-viewport nopadding">
         <canvas id="proofing-canvas" linked-id="{{result.id}}" filename="{{result.filename}}"></canvas>
       </div>
     </div>
