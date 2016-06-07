@@ -79,9 +79,9 @@ module.exports.save = function(readings) {
     console.log(result);
 
     if (result.length === 0) {
-      return sql.rawQueryPromise("INSERT INTO UploadReadings (uploadsId, ocrParamsJson, dataJson, createdBy, createdDate) VALUES (" + readings.id + ", '{\"proof\": true}', '" + JSON.stringify(readings.dataJson) + "', 0, NOW())");
+      return sql.rawQueryPromise("INSERT INTO UploadReadings (uploadsId, ocrParamsJson, dataJson, createdBy, createdDate) VALUES (" + readings.id + ", '{\"proof\": true}', '" + JSON.stringify(readings.dataJson) + "', 0, " + (new Date).getTime() + ")");
     } else {
-      return sql.rawQueryPromise("UPDATE UploadReadings SET dataJson = '" + JSON.stringify(readings.dataJson) + "' WHERE id = " + result[0].id);
+      return sql.rawQueryPromise("UPDATE UploadReadings SET modifiedDate = " + (new Date).getTime() + ", dataJson = '" + JSON.stringify(readings.dataJson) + "' WHERE id = " + result[0].id);
     }
   });
 };
