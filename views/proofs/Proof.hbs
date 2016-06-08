@@ -1,6 +1,6 @@
 <div id="container" class="container-fluid">
-  <div class="row nopadding">
-    <div id="header-controls" class="col-xs-4 controls nopadding">
+  <div class="row ">
+    <div id="header-controls" class="col-xs-4 controls ">
       <a id="receipt" class="page-link"><i class="icon ion-social-usd"></i></a>
       <a id="x" class="page-link"><i class="icon ion-crop"></i></a>
       <a id="x" class="page-link"><i class="icon ion-crop"></i></a>
@@ -8,20 +8,20 @@
       <a id="x" class="page-link"><i class="icon ion-crop"></i></a>
       <a id="x" class="page-link"><i class="icon ion-crop"></i></a>
     </div>
-    <div class="col-xs-8 controls nopadding">
+    <div class="col-xs-8 controls ">
       <a id="crop-control" class="page-link"><i class="icon ion-crop"></i></a>
     </div>
   </div>
-  <div class="row nopadding">
-    <div id="proofing-input-container" class="col-xs-4 proofing-input-container nopadding">
-      <div id="proofing-input" class="col-xs-4 proofing-input nopadding">
-      </div>
-      <div id="footer-controls" class="col-xs-4 controls nopadding">
+  <div class="row ">
+    <div id="proofing-input-container" class="col-xs-4 proofing-input-container">
+      <form id="proofing-input" class="form">
+      </form>
+      <div id="footer-controls" class="col-xs-4 controls ">
         <a id="x" class="page-link"><i class="icon ion-crop"></i></a>
       </div>
     </div>
-    <div id="proofing-image-container" class="col-xs-8 proofing-image-container nopadding">
-      <div id="proofing-viewport" class="proofing-viewport nopadding">
+    <div id="proofing-image-container" class="col-xs-8 proofing-image-container ">
+      <div id="proofing-viewport" class="proofing-viewport ">
         <canvas id="proofing-canvas" linked-id="{{result.id}}" filename="{{result.filename}}"></canvas>
       </div>
     </div>
@@ -30,19 +30,12 @@
 
 <script type="text/javascript">
 var readings = {{{json readings}}};
-
-if (readings !== undefined &&
-    readings[0] !== undefined &&
-    readings[0].dataJson !== undefined)
-{
-  console.log(readings);
-  console.log(readings[0]);
-  console.log(readings[0].dataJson);
-}
 </script>
 
 <script type="text/javascript" src="/static/js/proof.js"></script>
 
 <script type="text/javascript" src="/static/js/jquery.imgareaselect.js"></script>
 <link rel="stylesheet" href="/static/css/imgareaselect-animated.css">
+<link rel="stylesheet" href="/static/css/select2.css">
+<script type="text/javascript" src="/static/js/select2.js"></script>
 

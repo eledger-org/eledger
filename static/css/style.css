@@ -28,3 +28,8 @@ div.nopadding {
   margin:  0 !important;
   border:  0 !important;
 }
+
+#proofing-input-container {
+  padding: 24px 24px 24px 24px;
+}
+

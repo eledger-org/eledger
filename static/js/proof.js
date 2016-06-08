@@ -1,14 +1,24 @@
 var canvas = $('#proofing-canvas');
 var context = undefined;
 
+console.log(readings);
+try {
+  window.dataJson = JSON.parse(readings[0].dataJson);
+
+  console.log(window.dataJson);
+} catch (ex) {
+  console.log("Unable to parse dataJson");
+}
+
 /** TODO Move this logic to some database based templating setup so that users can control templates **/
 var proofingInputTemplates = {
   "receipt": [
+    "Category",
     "Vendor",
     "Zip",
     "Date",
     "Subtotal",
-    "Taxes",
+    "Tax",
     "Tip",
     "Total",
     "VendorID",
@@ -17,36 +27,114 @@ var proofingInputTemplates = {
 };
 
 var proofingInputTemplatesGenerators = {
-  Vendor: test,
-  Zip: test,
-  Date: test,
-  Subtotal: test,
-  Taxes: test,
-  Tip: test,
-  Total: test,
-  VendorID: test,
-  CCLast4: test
+  Category: categoryTemplateGenerator,
+  Vendor: defaultTemplateGenerator,
+  Zip: defaultTemplateGenerator,
+  Date: defaultTemplateGenerator,
+  Subtotal: defaultTemplateGenerator,
+  Tax: defaultTemplateGenerator,
+  Tip: defaultTemplateGenerator,
+  Total: defaultTemplateGenerator,
+  VendorID: defaultTemplateGenerator,
+  CCLast4: defaultTemplateGenerator
 };
-
-/*
-    for (field in proofingInputTemplates[inputId]) {
-      for (htmlElement in proofingInputTemplatesGenerators[field]) {
-        inputDiv.add(htmlElement.tag);
-*/
 
 if (canvas !== undefined &&
     canvas[0] !== undefined) {
   var context = canvas[0].getContext('2d');
 }
 
-function test(parentElement, thisId) {
+function defaultTemplateGenerator(parentElement, thisId) {
   var vendorInputDiv = parentElement.append(
-    '<div class="row nopadding">' +
-      '<label for="' + thisId + '">' + thisId + ':</label>' +
-    '</div>' +
-    '<div class="row nopadding">' +
-      '<input id="' + thisId + '" type="text">' +
+    '<div class="row form-group">' +
+      '<label class="form-control-label col-sm-4" for="' + thisId + '">' + thisId + ':</label>' +
+      '<div class="col-sm-8">' +
+        '<input class="form-control col-sm-8" id="' + thisId + '">' +
+      '</div>' +
     '</div>');
+  vendorInputDiv.find('input').change(save);
+}
+
+function categoryTemplateGenerator(parentElement, thisId) {
+  var expenseCategories = getExpenseCategories();
+  var expenseSubcategories = getExpenseSubcategories();
+
+  var categories = parentElement.append(
+    '<div class="row form-group">' +
+      '<label class="form-control-label col-sm-4" for="' + thisId + '">' + thisId + ':</label>' +
+      '<div class="col-sm-8 select2-container form-select select2">' +
+        '<select class="form-control select2 select2-offscreen"></select>' +
+      '</div>' +
+    '</div>'
+  );
+
+  var selectElement = categories.find('select').first();
+  var optgroups = "";
+  var category = "";
+  var subcategory = "";
+
+  for (ec = 0; ec < expenseCategories.length; ++ec) {
+    category = expenseCategories[ec];
+
+    optgroups += '<optgroup id="' + category + '" label="' + category + '">';
+
+    if (expenseSubcategories[category] === undefined) {
+      console.log("Missing subcategory definition for category");
+    } else {
+      for (esc = 0; esc < expenseSubcategories[category].length; ++esc) {
+        subcategory = expenseSubcategories[category][esc];
+
+        optgroups += '<option value="' + category + "|" + subcategory + '">' + subcategory + '</option>';
+      }
+    }
+
+    optgroups += '</optgroup>';
+  };
+
+  selectElement.append(optgroups);
+  selectElement.prop('selectedIndex', -1);
+
+  selectElement.attr('id', thisId);
+
+  /** Breaks things **/
+  //categories.find('.select2-container').first().addClass('form-control');
+  //categories.find('.selection').first().addClass('form-control');
+  //categories.find('span').first().addClass('form-control');
+
+  /** Does nothing **/
+  //categories.find('input').first().addClass('form-control');
+  //categories.find('.select2-selection').first().addClass('form-control');
+  //categories.find('.presentation').first().addClass('form-control');
+}
+
+/** TODO Source categories from a dynamic list based on common usage from the api **/
+function getExpenseCategories() {
+    return [
+      "Auto", "Clothing", "Education", "Financial", "Food",
+      "Gifts", "Healthcare", "Hobbies", "Home", "Insurance",
+      "Job", "Pets", "Recreation", "Tax Payment", "Utilities", "Vacation"
+    ];
+}
+
+function getExpenseSubcategories() {
+  return {
+    "Auto": [ "Fuel", "Maintenance", "Fees", "Payment" ],
+    "Clothing": [ "Personal", "Professional" ],
+    "Education": [ "Tuition", "Books", "School Supplies", "Field Trips", "Fees", "Student Loans Payment" ],
+    "Financial": [ "Annual Fee", "Interest Payment", "Late Fee", "Monthly Payment", "Other Fee" ],
+    "Food": [ "Dining", "Groceries" ],
+    "Gifts": [ "Birthday", "Wedding", "Baby", "Anniversary" ],
+    "Healthcare": [ "Medical", "Dental", "Vision", "Prescription", "Over the Counter", "Emergency Care" ],
+    "Hobbies": [ "Gaming", "Maker" ],
+    "Home": [ "Rent", "Mortgage", "Homeowner's Association", "Furniture", "Decorating", "Tools", "Home Repair", "Home Improvement" ],
+    "Insurance": [ "Auto", "Health", "Life", "Disability", "Long Term Care", "Roadside Assistance", "Pet" ],
+    "Job": [ "Reimbursed", "Professional/Career" ],
+    "Pets": [ "Food", "Supplies", "Vet" ],
+    "Recreation": [ "Movies" ],
+    "Tax Payment": [ "Local", "State", "Federal" ],
+    "Utilities": [ "Water", "Sewer", "Electricity", "Gas", "Television", "Phone", "Internet", "Solid Waste" ],
+    "Vacation": [ "Auto", "Lodging", "Entertainment", "Adventure" ]
+  };
 }
 
 function set_body_height() {
@@ -65,8 +153,7 @@ function set_body_height() {
     .height(proofingInputHeight);
 
   $('#proofing-input')
-    .height(proofingInputHeight)
-    .width(proofingInputWidth);
+    .height(proofingInputHeight);
 
   $('#proofing-viewport').height(proofingViewportHeight);
 
@@ -96,7 +183,18 @@ function getScalingFactor(image, canvas) {
 }
 
 function save() {
-  var messageData = JSON.stringify({selection: window.proofingImageSelection});
+  var messageData = {
+    selection: window.proofingImageSelection,
+    inputs: {}
+  };
+
+  $.each($('#proofing-input select'), function(index, value) {
+    messageData.inputs[$(this).attr('id')] = $(this).val();
+  });
+
+  $.each($('#proofing-input input'), function(index, value) {
+    messageData.inputs[$(this).attr('id')] = $(this).val();
+  });
 
   console.log(messageData);
 
@@ -104,7 +202,7 @@ function save() {
     type: 'PUT',
     url: "/api/proofs/" + $('#proofing-canvas').attr('linked-id'),
     async: true,
-    data: messageData,
+    data: JSON.stringify(messageData),
     dataType: "json",
     contentType: "application/json",
     success: function(responseText) {
@@ -119,13 +217,11 @@ function applyLoadedSelection() {
 }
 
 function getSelection() {
-  if (readings === undefined ||
-      readings.length === 0 ||
-      readings[0].dataJson === undefined) {
+  if (window.dataJson === undefined) {
     return undefined;
   }
 
-  return JSON.parse(readings[0].dataJson).selection;
+  return window.dataJson.selection;
 }
 
 function resetCanvas() {
@@ -182,8 +278,6 @@ function drawScaledImage(image, canvas, context, selection) {
   canvas.imgAreaSelect({remove: true});
 
   image.cropped = true;
-
-  save();
 }
 
 $(document).ready(function() {
@@ -224,13 +318,22 @@ $(document).ready(function() {
         }
       });
 
-      $('#crop-control').click(cropControlClick);
+      $('#crop-control').click(function() {
+        cropControlClick();
+
+        save();
+      });
     }
   });
 
   /** TODO detect the last recorded file type and use that **/
   /** TODO 2 If can't detect (i.e. never visited before) assume user.defaultType or something **/
   generateProofingInputs("receipt");
+
+  $.each(window.dataJson.inputs, function(key, value) {
+    console.log("setting #%s to %s", key, value);
+    $('#' + key).val(value).change();
+  });
 });
 
 function cropControlClick() {
@@ -268,9 +371,7 @@ function generateProofingInputs(inputId) {
   for (i = 0; i < proofingInputTemplates[inputId].length; ++i) {
     var fieldName = proofingInputTemplates[inputId][i];
     var callback = proofingInputTemplatesGenerators[fieldName];
-    console.log(callback);
     if (callback) {
-      console.log("Running");
       callback(inputDiv, fieldName);
     }
           /*
