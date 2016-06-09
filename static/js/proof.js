@@ -52,7 +52,8 @@ function defaultTemplateGenerator(parentElement, thisId) {
         '<input class="form-control col-sm-8" id="' + thisId + '">' +
       '</div>' +
     '</div>');
-  vendorInputDiv.find('input').change(save);
+
+  vendorInputDiv.find('#' + thisId).change(save);
 }
 
 function categoryTemplateGenerator(parentElement, thisId) {
@@ -182,7 +183,21 @@ function getScalingFactor(image, canvas) {
   }
 }
 
+function suppressSaving() {
+  window.savingSuppressed = true;
+}
+
+function resumeSaving() {
+  window.savingSuppressed = false;
+}
+
 function save() {
+  if (window.savingSuppressed === true) {
+    console.log("Saving was suppressed.");
+
+    return false;
+  }
+
   var messageData = {
     selection: window.proofingImageSelection,
     inputs: {}
@@ -326,6 +341,8 @@ $(document).ready(function() {
     }
   });
 
+  suppressSaving();
+
   /** TODO detect the last recorded file type and use that **/
   /** TODO 2 If can't detect (i.e. never visited before) assume user.defaultType or something **/
   generateProofingInputs("receipt");
@@ -334,6 +351,8 @@ $(document).ready(function() {
     console.log("setting #%s to %s", key, value);
     $('#' + key).val(value).change();
   });
+
+  resumeSaving();
 });
 
 function cropControlClick() {
