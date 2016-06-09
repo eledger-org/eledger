@@ -1,6 +1,8 @@
-var $     = require('../util/jquery').$;
-var model = require('./model');
-var sql   = require('./sql');
+var $             = require('../util/jquery').$;
+var model         = require('./model');
+var sql           = require('./sql');
+var mysqlc        = require('../mysqlc');
+var QueryBuilder  = require('./QueryBuilder');
 
 const TABLE_NAME = "UploadReadings";
 const MODEL_NAME = "UploadReadings";
@@ -73,15 +75,41 @@ module.exports.count = function(opts) {
 };
 
 module.exports.save = function(readings) {
-  require('./UploadReadings').def_opts = {"table": TABLE_NAME};
+  return (new QueryBuilder()).select("id").from(TABLE_NAME).where([{
+    columnType: 'json',
+    columnName: 'ocrParamsJson',
+    jsonKey: '$.proof',
+    value: true,
+    operand: '='
+  }, {
+    columnName: 'uploadsId',
+    value: readings.id,
+    operand: '='
+  }]).queryPromise().then(function(result) {
+    rows = result.rows;
 
-  return sql.rawQueryPromise("SELECT id FROM UploadReadings WHERE ocrParamsJson->\"$.proof\" = true AND uploadsId = " + readings.id + ";").then(function(result) {
-    console.log(result);
-
-    if (result.length === 0) {
-      return sql.rawQueryPromise("INSERT INTO UploadReadings (uploadsId, ocrParamsJson, dataJson, createdBy, createdDate) VALUES (" + readings.id + ", '{\"proof\": true}', '" + JSON.stringify(readings.dataJson) + "', 0, " + (new Date).getTime() + ")");
+    if (rows.length === 0) {
+      return (new QueryBuilder()).insert(TABLE_NAME)
+        .fields(["uploadsId", "ocrParamsJson", "dataJson", "createdBy", "createdDate"])
+        .values([readings.id, JSON.stringify({proof: true}), JSON.stringify(readings.dataJson), 0, (new Date).getTime()])
+        .queryPromise();
     } else {
-      return sql.rawQueryPromise("UPDATE UploadReadings SET modifiedDate = " + (new Date).getTime() + ", dataJson = '" + JSON.stringify(readings.dataJson) + "' WHERE id = " + result[0].id);
+      return (new QueryBuilder()).update(TABLE_NAME)
+        .set([{
+            key:   "uploadsId",
+            value: readings.id
+          }, {
+            key:   "dataJson",
+            value: JSON.stringify(readings.dataJson)
+          }, {
+            key:   "modifiedDate",
+            value: (new Date).getTime()
+          }])
+        .where([{
+          columName: 'id',
+          value: result.rows[0].id,
+          operand: '='
+        }]).queryPromise();
     }
   });
 };

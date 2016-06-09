@@ -347,10 +347,11 @@ $(document).ready(function() {
   /** TODO 2 If can't detect (i.e. never visited before) assume user.defaultType or something **/
   generateProofingInputs("receipt");
 
-  $.each(window.dataJson.inputs, function(key, value) {
-    console.log("setting #%s to %s", key, value);
-    $('#' + key).val(value).change();
-  });
+  if (window.dataJson !== undefined) {
+    $.each(window.dataJson.inputs, function(key, value) {
+      $('#' + key).val(value).change();
+    });
+  }
 
   resumeSaving();
 });

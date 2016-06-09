@@ -39,6 +39,7 @@ function connect() {
     host: config.get("db.host"),
     user: config.get("db.user"),
     database: config.get("db.name"),
+    debug: true
   });
 
   require('./mysqlc').mysqlc.connect(function(err) {

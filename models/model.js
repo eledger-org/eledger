@@ -87,6 +87,18 @@ sql.countTables().then(function(count) {
   });
 });
 
+module.exports.insert = function(opts) {
+  var qb = new QueryBuilder();
+
+  return qb.insert(opts.table).fields(opts.fields).values(opts.values).queryPromise();
+};
+
+module.exports.update = function(opts) {
+  var qb = new QueryBuilder();
+
+  return qb.update(opts.table).set(opts.set).where(opts.where).queryPromise();
+};
+
 module.exports.find = function(opts) {
   var qb = new QueryBuilder();
 
