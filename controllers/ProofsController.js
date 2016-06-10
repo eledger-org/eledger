@@ -68,6 +68,8 @@ module.exports.Index = function(request, response) {
 };
 
 module.exports.ProofById = function(request, response) {
+  pc = require('./ProofsController');
+
   var byIdOpts = $.extend(true, {}, uploadsOpts, request.query);
 
   byIdOpts.limit = 1;
@@ -106,20 +108,12 @@ module.exports.ProofById = function(request, response) {
 
     return UploadReadings.find(uploadReadingsOpts);
   }).then(function(result) {
-    return new Q.Promise(function(resolve, reject) {
-      Log.I(result);
-      response.readings = result.rows;
-      response.render('proofs/Proof', response);
+    response.readings = result.rows;
 
-      resolve();
-    });
+    return pc._proof(request, response, result);
   }).catch(function(rejection) {
-    response.status(500);
-
-    url = request.url;
-    response.render('errors/500');
-    Log.E(rejection);
-  });;
+    return pc._error(request, response, rejection);
+  });
 };
 
 module.exports.SaveById = function(request, response) {
@@ -133,7 +127,7 @@ module.exports.SaveById = function(request, response) {
     console.log(result);
 
     response.status(200);
-    response.send("OK");
+    response.send({response: "OK"});
   }).catch(function(rejection) {
     response.status(500);
 
@@ -142,5 +136,39 @@ module.exports.SaveById = function(request, response) {
     Log.E(rejection);
   });
 
+};
+
+module.exports.NextProof = function(request, response) {
+  sql = require('../models/sql');
+  pc  = require('./ProofsController');
+
+  return sql.rawQueryPromise(
+    "SELECT * FROM uploads WHERE id NOT IN " +
+    "(SELECT uploadsId FROM UploadReadings WHERE ocrParamsJson->\"$.proof\" = true)" +
+    "ORDER BY id ASC LIMIT 1").then(function(result) {
+      response.status(200).send("" + result[0].id);
+
+      resolve();
+    }).catch(function(rejection) {
+      return pc._error(request, response, rejection);
+    });
+};
+
+module.exports._proof = function(request, response, result) {
+  return new Q.Promise(function(resolve, reject) {
+    Log.I(response.result);
+
+    response.render('proofs/Proof', response);
+
+    resolve();
+  });
+};
+
+module.exports._error = function(request, response, rejection) {
+  response.status(500);
+
+  url = request.url;
+  response.render('errors/500');
+  Log.E(rejection);
 };
 

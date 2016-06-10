@@ -131,7 +131,7 @@ function getExpenseSubcategories() {
     "Insurance": [ "Auto", "Health", "Life", "Disability", "Long Term Care", "Roadside Assistance", "Pet" ],
     "Job": [ "Reimbursed", "Professional/Career" ],
     "Pets": [ "Food", "Supplies", "Vet" ],
-    "Recreation": [ "Movies" ],
+    "Recreation": [ "Alcohol", "Movies", "Smoking" ],
     "Tax Payment": [ "Local", "State", "Federal" ],
     "Utilities": [ "Water", "Sewer", "Electricity", "Gas", "Television", "Phone", "Internet", "Solid Waste" ],
     "Vacation": [ "Auto", "Lodging", "Entertainment", "Adventure" ]
@@ -191,7 +191,7 @@ function resumeSaving() {
   window.savingSuppressed = false;
 }
 
-function save() {
+function save(callback) {
   if (window.savingSuppressed === true) {
     console.log("Saving was suppressed.");
 
@@ -213,6 +213,12 @@ function save() {
 
   console.log(messageData);
 
+  if (callback === undefined || callback === null) {
+    callback = function(responseText) {
+      console.log("Ajax Response: " + responseText);
+    };
+  }
+
   $.ajax({
     type: 'PUT',
     url: "/api/proofs/" + $('#proofing-canvas').attr('linked-id'),
@@ -220,7 +226,12 @@ function save() {
     data: JSON.stringify(messageData),
     dataType: "json",
     contentType: "application/json",
-    success: function(responseText) {
+    success: callback,
+    error: function(jqXHR, textStatus, errorThrown) {
+      console.log("jqXHR");
+      console.log(jqXHR);
+      console.log("textStatus: " + textStatus);
+      console.log("errorThrown: " + errorThrown);
     }
   });
 }
@@ -403,5 +414,25 @@ function generateProofingInputs(inputId) {
     }
     */
   }
+
+  $("input").keypress(function(event) {
+    if (event.which == 13) {
+      event.preventDefault();
+
+      save(function(responseText) {
+        $.ajax({
+          type: 'GET',
+          url: "/api/proofs/next",
+          async: true,
+          success: function(responseText) {
+            window.location.href = '/proofs/' + responseText;
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            console.log(textStatus + " " + errorThrown);
+          }
+        });
+      });
+    }
+  });
 }
 
