@@ -34,7 +34,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 function connect() {
-  exports.mysqlc = mysql.createConnection({
+  mysqlc = mysql.createConnection({
     password: config.get("db.password"),
     host: config.get("db.host"),
     user: config.get("db.user"),
@@ -42,22 +42,26 @@ function connect() {
     debug: true
   });
 
-  require('./mysqlc').mysqlc.connect(function(err) {
+  mysqlc.connect(function(err) {
     if (err) {
       Log.E(err);
       setTimeout(connect, 2000);
     }
   });
 
-  require('./mysqlc').mysqlc.on('error', function(err) {
+  mysqlc.on('error', function(err) {
     Log.E(err);
 
     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      Log.W("Lost connection, trying to reconnect.");
+
       connect();
     } else {
       throw err;
     }
   });
+
+  exports.mysqlc = mysqlc;
 }
 
 connect();
