@@ -27,6 +27,11 @@ function QueryBuilder() {
   this.SELECT_QUERY_TYPE  = "SELECT_QUERY_TYPE";
   this.INSERT_QUERY_TYPE  = "INSERT_QUERY_TYPE";
   this.UPDATE_QUERY_TYPE  = "UPDATE_QUERY_TYPE";
+
+  this.LEFT_JOIN_METHOD   = " LEFT JOIN";
+  this.INNER_JOIN_METHOD  = " INNER JOIN";
+  this.RIGHT_JOIN_METHOD  = " RIGHT JOIN";
+  this.OUTER_JOIN_METHOD  = " OUTER JOIN";
 }
 
 method.getLimit       = function() { return this._limit; };
@@ -254,7 +259,21 @@ method.queryPromiseSelect = function() {
     q = q + " FROM ??";
 
     if (qb._joins.length !== 0) {
-      reject("Joins are not yet implemented.");
+      for (joinIter = 0; joinIter < qb._joins.length; ++joinIter) {
+        if (qb._joins[joinIter].table === undefined) {
+          reject("Join table must be defined.");
+        } else if (qb._joins[joinIter].fields.length !== 2) {
+          reject("Not sure how to deal with a number of fields different from 2.");
+        } else if (qb._joins[joinIter].joinMethod === undefined) {
+          reject("joinMethod must be defined.");
+        }
+
+        q = q + qb._joins.joinMethod + " ?? ON ? = ?";
+
+        queryParams.push(qb._joins[joinIter].table);
+        queryParams.push(qb._joins[joinIter].fields[0]);
+        queryParams.push(qb._joins[joinIter].fields[1]);
+      }
     }
 
     if (qb._where.length !== 0) {
@@ -445,6 +464,26 @@ method.from = function(table) {
 
   return this;
 };
+
+method.leftJoin = function(table, fields) {
+  if (typeof table !== "string") {
+    Log.E("Pass table in to leftJoin as a string.");
+
+    return this;
+  } else if (Array.isArray(fields)) {
+    Log.E("Pass fields in to leftJoin as an array.");
+
+    return this;
+  }
+
+  this._joins.push({
+    "joinMethod": this.LEFT_JOIN_METHOD,
+    "table": table,
+    "fields": fields
+  });
+
+  return this;
+}
 
 method.where = function(where) {
   if (!Array.isArray(where) || where.length <= 0) {
