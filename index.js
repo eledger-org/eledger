@@ -1,3 +1,4 @@
+var config       = require('config');
 var express       = require('express');
 var http          = require('http');
 var path          = require('path');
@@ -52,7 +53,7 @@ app.use('/static/bootstrap', express.static('bootstrap'));
 app.use('/static', express.static('static'));
 app.use('/ocr', express.static('/tmp/ocr'));
 
-var server = app.listen(3000, function() {
+var server = app.listen(config.get('express.port'), function() {
   var port = server.address().port;
 
   Log.I("Listening on port %s", port);

@@ -6,5 +6,8 @@
     "name": "eledger",
     "user": "eledger",
     "password": "changeme"
+  },
+  "express": {
+    "port": 3000
   }
 }
