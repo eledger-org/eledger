@@ -501,7 +501,7 @@ method.count = function(countFields) {
 
   this._limit = undefined;
   this._offset = undefined;
-  this._queryType = this.QUERY_TYPE_SELECT;
+  this._queryType = this.SELECT_QUERY_TYPE;
 
   return this;
 };
