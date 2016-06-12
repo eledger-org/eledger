@@ -1,5 +1,5 @@
 var config       = require('config');
-var Log          = require('./util/log');
+var Log          = require('node-android-logging');
 var mysql        = require('mysql');
 
 if (process.env.NODE_ENV === "development") {
@@ -28,9 +28,9 @@ if (process.env.NODE_ENV === "development") {
 
   message += "}";
 
-  Log.i(message);
+  Log.I(message);
 } else {
-  Log.i("Launching eledger as " + process.env.NODE_ENV);
+  Log.I("Launching eledger as " + process.env.NODE_ENV);
 }
 
 function connect() {
