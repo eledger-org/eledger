@@ -1,5 +1,5 @@
 var $                 = require('../util/jquery').$;
-var Log               = require('../util/log');
+var Log               = require('node-android-logging');
 var path              = require('path');
 var printf            = require('util').format;
 var Q                 = require('q');

@@ -1,4 +1,4 @@
-var Log      = require('../util/log');
+var Log      = require('node-android-logging');
 var method   = QueryBuilder.prototype;
 var Q        = require('q');
 
@@ -136,14 +136,14 @@ method.queryPromiseUpdate = function() {
             err.extraInfo.queryInfo = queryInfo;
             reject(err);
           } else {
-            Log.d(queryInfo);
+            Log.D(queryInfo);
 
             resolve({"rows": rows, "queryInfo": queryInfo, "queryBuilder": qb});
           }
         });
       } catch (ex) {
-        Log.e(queryInfo);
-        Log.e(ex);
+        Log.E(queryInfo);
+        Log.E(ex);
       }
     });
   });
@@ -194,14 +194,14 @@ method.queryPromiseInsert = function() {
             err.extraInfo.queryInfo = queryInfo;
             reject(err);
           } else {
-            Log.d(queryInfo);
+            Log.D(queryInfo);
 
             resolve({"rows": rows, "queryInfo": queryInfo, "queryBuilder": qb});
           }
         });
       } catch (ex) {
-        Log.e(queryInfo);
-        Log.e(ex);
+        Log.E(queryInfo);
+        Log.E(ex);
       }
     });
   });
@@ -344,14 +344,14 @@ method.queryPromiseSelect = function() {
             err.extraInfo.queryInfo = queryInfo;
             reject(err);
           } else {
-            Log.d(queryInfo);
+            Log.D(queryInfo);
 
             resolve({"rows": rows, "queryInfo": queryInfo, "queryBuilder": qb});
           }
         });
       } catch (ex) {
-        Log.e(queryInfo);
-        Log.e(ex);
+        Log.E(queryInfo);
+        Log.E(ex);
       }
     });
   });

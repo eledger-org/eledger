@@ -1,4 +1,4 @@
-var Log            = require('../util/log');
+var Log            = require('node-android-logging');
 var Q              = require('q');
 var QueryBuilder   = require('./QueryBuilder');
 var sql            = require('./sql');

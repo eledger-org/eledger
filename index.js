@@ -1,4 +1,4 @@
-var config       = require('config');
+var config        = require('config');
 var express       = require('express');
 var http          = require('http');
 var path          = require('path');
@@ -7,19 +7,9 @@ var bodyParser    = require('body-parser');
 
 var app = express();
 
-var Log = require('./util/log');
+var Log = require('node-android-logging');
 
 console.log("=".repeat(process.stdout.columns));
-
-// Log Tests
-//  TODO: Add other possible datatypes like Date, etc., other objects
-//  TODO: Move these into a unit test file.
-/*
-Log.i("string of characters");
-Log.i(["%s %s %d %s", "array", "of", 5, "items"]);
-Log.i({"json": "obj"});
-Log.i(new TypeError("Cannot read property 'length' of undefined"));
-*/
 
 // Initialize all the models.
 require('./models/model');
