@@ -29,6 +29,7 @@
     "json": "^9.0.4",
     "mysql": "^2.10.2",
     "node-android-logging": "git+ssh://git@github.com/eledger-org/node-android-logging.git",
-    "q": "^1.4.1"
+    "q": "^1.4.1",
+    "squel": "^5.3.1"
   }
 }

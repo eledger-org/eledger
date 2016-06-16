@@ -6,6 +6,9 @@ var Q                 = require('q');
 var Uploads           = require('../models/Uploads');
 var UploadReadings    = require('../models/UploadReadings');
 var Pagination        = require('../util/pagination');
+var sql               = require('../models/sql');
+var squel             = require('squel');
+var requestExpress    = require('../util/request-express');
 
 var uploadsOpts = {
   "fields": [
@@ -15,23 +18,38 @@ var uploadsOpts = {
   ]
 };
 
-var uploadReadingOpts = {
-};
-
 module.exports.Index = function(request, response) {
-  Uploads.find($.extend(true, {}, uploadsOpts, request.query)).then(function (result) {
-    var foundUploads          = result.rows;
-    var queryInfo             = result.queryInfo;
-    var queryBuilder          = result.queryBuilder;
+  request.limit  = requestExpress.getInt(request, 'limit',  10);
+  request.offset = requestExpress.getInt(request, 'offset', 0);
 
-    response.upload           = foundUploads;
-    response.resultCount      = foundUploads.length;
-    response.paginationLimit  = queryBuilder.getLimit();
-    response.paginationOffset = queryBuilder.getOffset();
+  if (request.limit === undefined) {
+    throw new Error("Invalid limit");
+  }
 
-    return Uploads.count();
+  if (request.offset === undefined) {
+    throw new Error("Invalid offset");
+  }
+
+  var queryString = squel.select()
+    .field("id")
+    .field("filename")
+    .field("dt")
+    .from("uploads")
+    .offset(request.offset)
+    .limit(request.limit)
+    .toString();
+
+  Log.I(queryString);
+
+  sql.rawQueryPromise(queryString).then(function(result) {
+    response.upload           = result;
+    response.resultCount      = result.length;
+    response.paginationLimit  = request.limit;
+    response.paginationOffset = request.offset;
+
+    return sql.rawQueryPromise(squel.select().field("COUNT(*)", "count").from("uploads").toString());
   }).then(function(result) {
-    var uploadCount  = result.rows;
+    var uploadCount  = result;
 
     return new Q.Promise(function(resolve, reject) {
       try {
@@ -41,14 +59,12 @@ module.exports.Index = function(request, response) {
         pagination.setOffset(response.paginationOffset);
         pagination.setCount(uploadCount[0].count);
 
-        //response.pages = pagination.buildPages();
         pagination.buildPages();
         response.pagination = pagination;
 
         response.paginationLimit = undefined;
         response.paginationOffset = undefined;
 
-        Log.I(response);
         response.render('proofs/Index', response);
 
         resolve(null);
@@ -70,45 +86,37 @@ module.exports.Index = function(request, response) {
 module.exports.ProofById = function(request, response) {
   pc = require('./ProofsController');
 
-  var byIdOpts = $.extend(true, {}, uploadsOpts, request.query);
+  var query = squel.select()
+    .from(Uploads.TABLE_NAME)
+    .where("id = ?", request.params.id)
+    .toString();
 
-  byIdOpts.limit = 1;
-  byIdOpts.where = [
-    {
-      "columnName": "id",
-      "value": request.params.id,
-      "operand": "="
-    }
-  ];
-
-  Log.I(byIdOpts);
-  Uploads.find(byIdOpts).then(function (result) {
+  sql.rawQueryPromise(query).then(function (result) {
     return new Q.Promise(function(resolve, reject) {
-      response.result = result.rows[0];
+      Log.E(result);
+      if (result.length === 0) {
+        response.return = "/proofs/";
 
-      resolve(result.rows[0]);
+        response.status(404).render('errors/404', response);
+
+        reject("No records found by the given ID");
+      } else {
+        response.result = result[0];
+
+        resolve(result[0]);
+      }
     });
   }).then(function(result) {
-    var uploadReadingsOpts = $.extend(true, {}, uploadReadingsOpts, request.query);
+    var query = squel.select()
+      .from("UploadReadings")
+      .where("JSON_EXTRACT(ocrParamsJson, \"$.proof\") = true")
+      .where("uploadsId = ?", request.params.id)
+      .limit(1)
+      .toString();
 
-    uploadReadingsOpts.limit = NaN;
-    uploadReadingsOpts.where = [
-      {
-        "columnName": "uploadsId",
-        "value": request.params.id,
-        "operand": "="
-      },
-      {
-        "columnNameTextReplace": true,
-        "columnName": "ocrParamsJson->\"$.proof\"",
-        "value": true,
-        "operand": "="
-      }
-    ];
-
-    return UploadReadings.find(uploadReadingsOpts);
+    return sql.rawQueryPromise(query);
   }).then(function(result) {
-    response.readings = result.rows;
+    response.readings = result;
 
     return pc._proof(request, response, result);
   }).catch(function(rejection) {

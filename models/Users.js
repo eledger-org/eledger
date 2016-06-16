@@ -1,8 +1,10 @@
-var $     = require('../util/jquery').$;
-var model = require('./model');
+var $                 = require('../util/jquery').$;
+var model             = require('./model');
 
 const TABLE_NAME = "users";
 const MODEL_NAME = "Users";
+
+module.exports.TABLE_NAME = TABLE_NAME;
 
 /** SQL INITIALIZATION **/
 
@@ -38,14 +40,21 @@ model.setMigrateSql(3, MODEL_NAME, initialCreateSql);
 /** MODEL FUNCTIONS **/
 
 module.exports.find = function(opts) {
-  require('./Users').def_opts = {"table": TABLE_NAME};
+  opts = $.extend(true, {}, {limit: 10, offset: 0}, opts);
 
-  return model.find($.extend(true, {}, require('./Users').def_opts, opts));
+  return sql.rawQueryPromise(squel
+    .select()
+    .from(TABLE_NAME)
+    .limit(opts.limit)
+    .offset(opts.offset)
+    .toString());
 };
 
-module.exports.count = function(opts) {
-  require('./Users').def_opts = {"table": TABLE_NAME};
-
-  return model.count($.extend(true, {}, require('./Users').def_opts, opts));
+module.exports.count = function() {
+  return sql.rawQueryPromise(squel
+    .select()
+    .field("COUNT(*)", "count")
+    .from(TABLE_NAME)
+    .toString());
 };
 

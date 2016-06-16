@@ -3,32 +3,7 @@ var Log          = require('node-android-logging');
 var mysql        = require('mysql');
 
 if (process.env.NODE_ENV === "development") {
-  var requiredConfigs = ["db.password", "db.host", "db.user", "db.name"];
-
-  var i;
-  var message = "{";
-
-  for (i = 0; i < requiredConfigs.length; ++i) {
-    message += "\"" + requiredConfigs[i] + "\":";
-    if (config.has(requiredConfigs[i])) {
-      if (config.get(requiredConfigs[i]) !== "changeme" &&
-          requiredConfigs[i] == 'db.password') {
-        message += "\"not displayed for security reasons\"";
-      } else {
-        message += "\"" + config.get(requiredConfigs[i]) + "\"";
-      }
-    } else {
-      message += "null";
-    }
-
-    if (i + 1 < requiredConfigs.length) {
-      message += ",";
-    }
-  }
-
-  message += "}";
-
-  Log.I(message);
+  Log.I(config);
 } else {
   Log.I("Launching eledger as " + process.env.NODE_ENV);
 }

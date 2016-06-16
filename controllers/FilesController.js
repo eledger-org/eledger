@@ -1,27 +1,41 @@
-var $           = require('../util/jquery').$;
-var Log         = require('node-android-logging');
-var path        = require('path');
-var printf      = require('util').format;
-var Q           = require('q');
-var Uploads     = require('../models/Uploads');
-var Pagination  = require('../util/pagination');
+var $                 = require('../util/jquery').$;
+var Log               = require('node-android-logging');
+var path              = require('path');
+var printf            = require('util').format;
+var Q                 = require('q');
+var Uploads           = require('../models/Uploads');
+var Pagination        = require('../util/pagination');
+var requestExpress    = require('../util/request-express');
 
 var opts      = {};
 
 module.exports.Index = function(request, response) {
+  request.limit  = requestExpress.getInt(request, 'limit',  10);
+  request.offset = requestExpress.getInt(request, 'offset', 0);
+
+  if (request.limit === undefined) {
+    throw new Error("Invalid limit");
+  }
+
+  Log.I(request.offset);
+
+  if (request.offset === undefined) {
+    throw new Error("Invalid offset");
+  }
+
   Uploads.find($.extend(true, {}, opts, request.query)).then(function (result) {
-    var foundUploads          = result.rows;
+    var foundUploads          = result;
     var queryInfo             = result.queryInfo;
     var queryBuilder          = result.queryBuilder;
 
     response.upload           = foundUploads;
     response.resultCount      = foundUploads.length;
-    response.paginationLimit  = queryBuilder.getLimit();
-    response.paginationOffset = queryBuilder.getOffset();
+    response.paginationLimit  = request.limit;
+    response.paginationOffset = request.offset;
 
     return Uploads.count();
   }).then(function(result) {
-    var uploadCount  = result.rows;
+    var uploadCount  = result;
 
     return new Q.Promise(function(resolve, reject) {
       try {

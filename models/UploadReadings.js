@@ -1,11 +1,14 @@
-var $             = require('../util/jquery').$;
-var model         = require('./model');
-var sql           = require('./sql');
-var mysqlc        = require('../mysqlc');
-var QueryBuilder  = require('./QueryBuilder');
+var $                 = require('../util/jquery').$;
+var model             = require('./model');
+var sql               = require('./sql');
+var mysqlc            = require('../mysqlc');
+var squel             = require('squel');
+var Log               = require('node-android-logging');
 
 const TABLE_NAME = "UploadReadings";
 const MODEL_NAME = "UploadReadings";
+
+module.exports.TABLE_NAME = TABLE_NAME;
 
 /** SQL INITIALIZATION **/
 
@@ -62,55 +65,62 @@ model.setMigrateSql(5, MODEL_NAME, migrations[0]);
 
 /** MODEL FUNCTIONS **/
 
-module.exports.find = function(opts) {
-  require('./UploadReadings').def_opts = {"table": TABLE_NAME};
-
-  return model.find($.extend(true, {}, require('./UploadReadings').def_opts, opts));
-};
-
-module.exports.count = function(opts) {
-  require('./UploadReadings').def_opts = {"table": TABLE_NAME};
-
-  return model.count($.extend(true, {}, require('./UploadReadings').def_opts, opts));
-};
-
 module.exports.save = function(readings) {
-  return (new QueryBuilder()).select("id").from(TABLE_NAME).where([{
-    columnType: 'json',
-    columnName: 'ocrParamsJson',
-    jsonKey: '$.proof',
-    value: true,
-    operand: '='
-  }, {
-    columnName: 'uploadsId',
-    value: readings.id,
-    operand: '='
-  }]).queryPromise().then(function(result) {
-    rows = result.rows;
+  return sql.rawQueryPromise(squel
+    .select()
+    .field("id")
+    .from(TABLE_NAME)
+    .where("JSON_EXTRACT(ocrParamsJson, \"$.proof\") = true")
+    .where("uploadsId = ?", readings.id).toString()).then(
 
-    if (rows.length === 0) {
-      return (new QueryBuilder()).insert(TABLE_NAME)
-        .fields(["uploadsId", "ocrParamsJson", "dataJson", "createdBy", "createdDate"])
-        .values([readings.id, JSON.stringify({proof: true}), JSON.stringify(readings.dataJson), 0, (new Date).getTime()])
-        .queryPromise();
+  function(result) {
+    if (result.length === 0) {
+      return sql.rawQueryPromise(squel
+        .insert()
+        .into(TABLE_NAME)
+        .setFields({
+          uploadsId:      readings.id,
+          ocrParamsJson:  JSON.stringify({proof: true}),
+          dataJson:       JSON.stringify(readings.dataJson),
+          createdBy:      0,
+          createdDate:    (new Date).getTime()
+        })
+        .toString());
     } else {
-      return (new QueryBuilder()).update(TABLE_NAME)
-        .set([{
-            key:   "uploadsId",
-            value: readings.id
-          }, {
-            key:   "dataJson",
-            value: JSON.stringify(readings.dataJson)
-          }, {
-            key:   "modifiedDate",
-            value: (new Date).getTime()
-          }])
-        .where([{
-          columName: 'id',
-          value: result.rows[0].id,
-          operand: '='
-        }]).queryPromise();
+      return sql.rawQueryPromise(squel
+        .update()
+        .table(TABLE_NAME)
+        .setFields({
+          uploadsId:      readings.id,
+          dataJson:       JSON.stringify(readings.dataJson),
+          modifiedDate:   (new Date).getTime()
+        })
+        .where("id = ?", result[0].id)
+        .toString());
     }
   });
+};
+
+module.exports.find = function(opts) {
+  Log.I(opts);
+
+  opts = $.extend(true, {}, {limit: 10, offset: 0}, opts);
+
+  Log.I(opts);
+
+  return sql.rawQueryPromise(squel
+    .select()
+    .from(TABLE_NAME)
+    .limit(opts.limit)
+    .offset(opts.offset)
+    .toString());
+};
+
+module.exports.count = function() {
+  return sql.rawQueryPromise(squel
+    .select()
+    .field("COUNT(*)", "count")
+    .from(TABLE_NAME)
+    .toString());
 };
 

@@ -1,8 +1,11 @@
-var model = require('./model');
-var sql   = require('./sql');
+var $                 = require('../util/jquery').$;
+var model             = require('./model');
+var squel             = require('squel');
 
 const TABLE_NAME = "DatabaseVersion";
 const MODEL_NAME = "DatabaseVersion";
+
+module.exports.TABLE_NAME = TABLE_NAME;
 
 /** SQL INITIALIZATION **/
 
@@ -34,8 +37,13 @@ model.setMigrateSql(0, MODEL_NAME, initialCreateSql);
 /** MODEL FUNCTIONS **/
 
 module.exports.find = function(opts) {
-  require('./DatabaseVersion').def_opts = {"table": MODEL_NAME};
+  opts = $.extend(true, {}, {limit: 10, offset: 0}, opts);
 
-  return model.find($.extend(true, {}, require('./DatabaseVersion').def_opts, opts));
+  return sql.rawQueryPromise(squel
+    .select()
+    .from(TABLE_NAME)
+    .limit(opts.limit)
+    .offset(opts.offset)
+    .toString());
 };
 

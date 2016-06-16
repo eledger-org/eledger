@@ -1,12 +1,19 @@
 mysqlc                = require('../mysqlc').mysqlc;
 module.exports.mysqlc = mysqlc;
 var Q                 = require('q');
+var squel             = require('squel');
 
 module.exports.rawQueryPromise = function(statement) {
   return new Q.Promise(function(resolve, reject) {
-    mysqlc.query(statement, function (err, rows, fields) {
+    mysqlc.query(statement, function(err, rows, fields) {
       if (err) {
-        reject({"err": err, "errstack": err.stack, "rows": rows, "fields": fields, "statement": statement});
+        reject({
+          "err": err,
+          "errstack": err.stack,
+          "rows": rows,
+          "fields": fields,
+          "statement": statement
+        });
       } else {
         resolve(rows);
       }
@@ -15,21 +22,11 @@ module.exports.rawQueryPromise = function(statement) {
 };
 
 module.exports.listTables = function() {
-  return new Q.Promise(function(resolve, reject) {
-    this.statement = "SHOW TABLES";
-
-    mysqlc.query(this.statement, function (err, rows, fields) {
-      if (err) {
-        reject({"err": err, "rows": rows, "fields": fields});
-      } else {
-        resolve(rows);
-      }
-    });
-  });
+  return this.rawQueryPromise("SHOW TABLES");
 };
 
 module.exports.countTables = function() {
-  return require('./sql.js').listTables().then(function (resolution) {
+  return this.listTables().then(function (resolution) {
     return new Q.Promise(function(resolve, reject) {
       resolve(resolution.length);
     });
@@ -37,21 +34,13 @@ module.exports.countTables = function() {
 };
 
 module.exports.getDatabaseVersion = function() {
-  return new Q.Promise(function(resolve, reject) {
-    this.statement = "SELECT databaseVersion FROM DatabaseVersion";
-
-    mysqlc.query(this.statement, function (err, rows, fields) {
-      if (err) {
-        reject({"err": err, "rows": rows, "fields": fields});
-      } else {
-        if (rows.length === 1) {
-          resolve(rows[0].databaseVersion);
-        } else {
-          reject({"err": "row count is not 1", "rows": rows, "fields": fields});
-        }
-      }
+  return this.rawQueryPromise(
+    squel.select().field('databaseVersion').from('DatabaseVersion').toString())
+    .then(function(rows) {
+      return new Q.Promise(function(resolve, reject) {
+        resolve(rows[0].databaseVersion);
+      });
     });
-  });
 };
 
 module.exports.setDatabaseVersion = function(version) {
@@ -61,7 +50,7 @@ module.exports.setDatabaseVersion = function(version) {
     });
   }
 
-  return require('./sql').rawQueryPromise("UPDATE DatabaseVersion SET databaseVersion = " + version);
+  return this.rawQueryPromise(squel.update().table('DatabaseVersion').set('databaseVersion', version).toString());
 };
 
 module.exports.beginTransaction = function() {

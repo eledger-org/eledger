@@ -1,8 +1,12 @@
-var $     = require('../util/jquery').$;
-var model = require('./model');
+var $                 = require('../util/jquery').$;
+var model             = require('./model');
+var sql               = require('./sql');
+var squel             = require('squel');
 
 const TABLE_NAME = "uploads";
 const MODEL_NAME = "Uploads";
+
+module.exports.TABLE_NAME = TABLE_NAME;
 
 /** SQL INITIALIZATION **/
 
@@ -44,17 +48,22 @@ model.setMigrateSql(1, MODEL_NAME, initialCreateSql);
 
 model.setMigrateSql(2, MODEL_NAME, migrations[0]);
 
-/** MODEL FUNCTIONS **/
-
 module.exports.find = function(opts) {
-  require('./Uploads').def_opts = {"table": TABLE_NAME};
+  opts = $.extend(true, {}, {limit: 10, offset: 0}, opts);
 
-  return model.find($.extend(true, {}, require('./Uploads').def_opts, opts));
+  return sql.rawQueryPromise(squel
+    .select()
+    .from(TABLE_NAME)
+    .limit(opts.limit)
+    .offset(opts.offset)
+    .toString());
 };
 
-module.exports.count = function(opts) {
-  require('./Uploads').def_opts = {"table": TABLE_NAME};
-
-  return model.count($.extend(true, {}, require('./Uploads').def_opts, opts));
+module.exports.count = function() {
+  return sql.rawQueryPromise(squel
+    .select()
+    .field("COUNT(*)", "count")
+    .from(TABLE_NAME)
+    .toString());
 };
 
