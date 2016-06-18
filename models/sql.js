@@ -1,7 +1,9 @@
-mysqlc                = require('../mysqlc').mysqlc;
+"use strict";
+
+var mysqlc            = require("../mysqlc").mysqlc;
 module.exports.mysqlc = mysqlc;
-var Q                 = require('q');
-var squel             = require('squel');
+var Q                 = require("q");
+var squel             = require("squel");
 
 module.exports.rawQueryPromise = function(statement) {
   return new Q.Promise(function(resolve, reject) {
@@ -35,7 +37,7 @@ module.exports.countTables = function() {
 
 module.exports.getDatabaseVersion = function() {
   return this.rawQueryPromise(
-    squel.select().field('databaseVersion').from('DatabaseVersion').toString())
+    squel.select().field("databaseVersion").from("DatabaseVersion").toString())
     .then(function(rows) {
       return new Q.Promise(function(resolve, reject) {
         resolve(rows[0].databaseVersion);
@@ -50,7 +52,7 @@ module.exports.setDatabaseVersion = function(version) {
     });
   }
 
-  return this.rawQueryPromise(squel.update().table('DatabaseVersion').set('databaseVersion', version).toString());
+  return this.rawQueryPromise(squel.update().table("DatabaseVersion").set("databaseVersion", version).toString());
 };
 
 module.exports.beginTransaction = function() {
@@ -64,7 +66,7 @@ module.exports.beginTransaction = function() {
 module.exports.rollbackTransaction = function() {
   return new Q.Promise(function(resolve, reject) {
     mysqlc.rollback(function() {
-      // There doesn't appear to be any error to catch for this.
+      // There doesn"t appear to be any error to catch for this.
       resolve({"success": true});
     });
   });
@@ -73,7 +75,7 @@ module.exports.rollbackTransaction = function() {
 module.exports.commit = function() {
   return new Q.Promise(function(resolve, reject) {
     mysqlc.commit(function() {
-      // There doesn't appear to be any error to catch for this.
+      // There doesn"t appear to be any error to catch for this.
       resolve({"success": true});
     });
   });
