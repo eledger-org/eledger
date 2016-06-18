@@ -1,9 +1,10 @@
-var $                 = require('../util/jquery').$;
-var model             = require('./model');
-var sql               = require('./sql');
-var mysqlc            = require('../mysqlc');
-var squel             = require('squel');
-var Log               = require('node-android-logging');
+"use strict";
+
+var $                 = require("../util/jquery").$;
+var model             = require("./model");
+var sql               = require("./sql");
+var squel             = require("squel");
+var Log               = require("node-android-logging");
 
 const TABLE_NAME = "UploadReadings";
 const MODEL_NAME = "UploadReadings";
@@ -31,11 +32,11 @@ CREATE TABLE UploadReadings (
 /** SQL INITIALIZATION **/
 
 const migrations = [
-`
+  `
 ALTER TABLE UploadReadings
 MODIFY COLUMN ocrParamsJson   JSON              NOT NULL,
 MODIFY COLUMN dataJson        JSON              NOT NULL;
-`
+  `
 ];
 
 /** CURRENT CREATE TABLE STATEMENT **/
