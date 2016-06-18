@@ -20,6 +20,7 @@
   "homepage": "https://github.com/eledger-org/eledger#readme",
   "dependencies": {
     "body-parser": "^1.15.1",
+    "chai": "^3.5.0",
     "circular-json": "^0.3.0",
     "config": "^1.21.0",
     "eslint": "^2.13.0",
