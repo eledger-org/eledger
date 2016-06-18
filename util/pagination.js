@@ -1,4 +1,6 @@
 /** The purpose of this script is to standardize the API to interact with the pagination functionality on the client **/
+var Log = require("node-android-logging");
+
 var method   = Pagination.prototype;
 
 function Pagination() {
@@ -6,7 +8,7 @@ function Pagination() {
   this._count   = 0;
   this._offset  = 0;
   this._limit   = 0;
-};
+}
 
 /** Like mysql COUNT(*) **/
 method.setCount = function(count) {
@@ -33,6 +35,7 @@ method.buildPages = function() {
   }
 
   var pageNumber = 0;
+  var paginationIter;
 
   for (paginationIter = 0; paginationIter < this._count; paginationIter += this._limit) {
     pageNumber += 1;
