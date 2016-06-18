@@ -1,11 +1,14 @@
 "use strict";
 
+var Log               = require("node-android-logging");
 var mysqlc            = require("../mysqlc").mysqlc;
 module.exports.mysqlc = mysqlc;
 var Q                 = require("q");
 var squel             = require("squel");
 
 module.exports.rawQueryPromise = function(statement) {
+  Log.T("\n----" + statement + "\n");
+
   return new Q.Promise(function(resolve, reject) {
     mysqlc.query(statement, function(err, rows, fields) {
       if (err) {
@@ -17,6 +20,14 @@ module.exports.rawQueryPromise = function(statement) {
           "statement": statement
         });
       } else {
+        let message = "Query success.";
+
+        if (rows.length !== undefined) {
+          message += "  Row count: " + rows.length;
+        }
+
+        Log.T(message);
+
         resolve(rows);
       }
     });
@@ -36,13 +47,16 @@ module.exports.countTables = function() {
 };
 
 module.exports.getDatabaseVersion = function() {
-  return this.rawQueryPromise(
-    squel.select().field("databaseVersion").from("DatabaseVersion").toString())
-    .then(function(rows) {
-      return new Q.Promise(function(resolve, reject) {
-        resolve(rows[0].databaseVersion);
-      });
+  let query = squel.select()
+    .field("databaseVersion")
+    .from("DatabaseVersion")
+    .toString();
+
+  return this.rawQueryPromise(query).then(function(rows) {
+    return new Q.Promise(function(resolve, reject) {
+      resolve(rows[0].databaseVersion);
     });
+  });
 };
 
 module.exports.setDatabaseVersion = function(version) {
@@ -52,7 +66,12 @@ module.exports.setDatabaseVersion = function(version) {
     });
   }
 
-  return this.rawQueryPromise(squel.update().table("DatabaseVersion").set("databaseVersion", version).toString());
+  let query = squel.update()
+    .table("DatabaseVersion")
+    .set("databaseVersion", version)
+    .toString();
+
+  return this.rawQueryPromise(query);
 };
 
 module.exports.beginTransaction = function() {

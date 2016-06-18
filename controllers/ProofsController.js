@@ -41,7 +41,12 @@ module.exports.Index = function(request, response) {
     response.paginationLimit  = request.limit;
     response.paginationOffset = request.offset;
 
-    return sql.rawQueryPromise(squel.select().field("COUNT(*)", "count").from(Uploads.TABLE_NAME).toString());
+    let query = squel.select()
+      .field("COUNT(*)", "count")
+      .from(Uploads.TABLE_NAME)
+      .toString();
+
+    return sql.rawQueryPromise(query);
   }).then(function(result) {
     var uploadCount  = result;
 

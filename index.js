@@ -10,7 +10,10 @@ var app = express();
 
 var Log = require("node-android-logging");
 
-Log.I("=".repeat(process.stdout.columns));
+Log.setDefaults();
+Log.enableStderr("Trace");
+
+Log.I("\n" + "=".repeat(process.stdout.columns));
 
 // A global root path variable
 //  http://stackoverflow.com/questions/10265798/determine-project-root-from-a-running-node-js-application
@@ -21,7 +24,7 @@ require("./models/model");
 
 Log.I("Finished initializing the database.");
 
-Log.I("=".repeat(process.stdout.columns));
+Log.I("\n" + "=".repeat(process.stdout.columns));
 
 require("./router")(app);
 
@@ -54,6 +57,6 @@ var server = app.listen(config.get("express.port"), function() {
   Log.I("Listening on port %s", port);
   Log.I("Server initialized.");
 
-  Log.I("=".repeat(process.stdout.columns));
+  Log.I("\n" + "=".repeat(process.stdout.columns));
 });
 
