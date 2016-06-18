@@ -1,3 +1,5 @@
+"use strict";
+
 var $                 = require("../util/jquery").$;
 var model             = require("./model");
 var sql               = require("./sql");
