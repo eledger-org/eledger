@@ -1,7 +1,9 @@
-var Log               = require('node-android-logging');
-var Q                 = require('q');
-var sql               = require('./sql');
-var squel             = require('squel');
+"use strict";
+
+var Log               = require("node-android-logging");
+var Q                 = require("q");
+var sql               = require("./sql");
+var squel             = require("squel");
 
 var model;
 
@@ -9,7 +11,7 @@ var model;
 
 /** addCreateSql is used to build the list of create statements necessary to create the database from scratch **/
 module.exports.addCreateSql = function(modelName, createStatement) {
-  model = require('./model');
+  model = require("./model");
 
   if (model.createSql === undefined) {
     Log.I("Initializing createSql as an array.");
@@ -24,7 +26,7 @@ module.exports.addCreateSql = function(modelName, createStatement) {
 
 /** setMigrateSql is used to build the list of create and alter statements necessary to migrate the database from any point **/
 module.exports.setMigrateSql = function(versionIntFrom, modelName, migrateStatement) {
-  model = require('./model');
+  model = require("./model");
 
   if (model.migrateSql === undefined) {
     model.migrateSql = [];
@@ -48,14 +50,14 @@ module.exports.setMigrateSql = function(versionIntFrom, modelName, migrateStatem
 // All models should be added to module.exports with the same MODEL_NAME as the file name
 // See Uploads for an example.
 
-module.exports.DatabaseVersion    = require('./DatabaseVersion');
-module.exports.Uploads            = require('./Uploads');
-module.exports.UploadReadings     = require('./UploadReadings');
-module.exports.Users              = require('./Users');
+module.exports.DatabaseVersion    = require("./DatabaseVersion");
+module.exports.Uploads            = require("./Uploads");
+module.exports.UploadReadings     = require("./UploadReadings");
+module.exports.Users              = require("./Users");
 
 /** PREPARE DATABASE **/
 sql.countTables().then(function(count) {
-  model = require('./model');
+  model = require("./model");
 
   if (count === 0) {
     /** BLANK DB, CREATE FROM SCRATCH **/
@@ -73,7 +75,7 @@ sql.countTables().then(function(count) {
   } else {
     /** UPGRADE EXISTING DATABASE **/
 
-    var query = squel.select()
+    let query = squel.select()
       .field("databaseVersion")
       .from("DatabaseVersion")
       .limit(1)
@@ -81,7 +83,7 @@ sql.countTables().then(function(count) {
 
     // Do Upgrades
     return sql.rawQueryPromise(query).then(function(result) {
-      model.databaseVersion = result[0].databaseVersion
+      model.databaseVersion = result[0].databaseVersion;
 
       return sql.beginTransaction();
     }).then(function() {
@@ -95,7 +97,7 @@ sql.countTables().then(function(count) {
     });
   }
 }).catch(function(err) {
-  Log.E({count: count, err: err});
+  Log.E({err: err});
 
   sql.rollbackTransaction().then(function() {
     return sql.getDatabaseVersion(function(result) {
@@ -105,16 +107,16 @@ sql.countTables().then(function(count) {
 });
 
 module.exports.setDatabaseVersion = function() {
-  model = require('./model');
+  model = require("./model");
 
   return sql.setDatabaseVersion(model.databaseVersion);
 };
 
 module.exports.createDB = function() {
-  model = require('./model');
-  chain = [];
+  model = require("./model");
+  let chain = [];
 
-  var statementIter = 0;
+  let statementIter = 0;
 
   for (statementIter = 0; statementIter < model.createSql.length; ++statementIter) {
     chain.push(function(statementIndex) {
@@ -131,18 +133,18 @@ module.exports.createDB = function() {
 };
 
 module.exports.upgradeDB = function() {
-  model = require('./model');
+  model = require("./model");
 
-  var query = squel.select()
+  let query = squel.select()
     .field("databaseVersion")
     .from(module.exports.DatabaseVersion.TABLE_NAME)
     .limit(1)
     .toString();
 
   return sql.rawQueryPromise(query).then(function(result) {
-    chain = [];
+    let chain = [];
 
-    var statementIter = result[0].databaseVersion;
+    let statementIter = result[0].databaseVersion;
 
     for (statementIter = result[0].databaseVersion; statementIter < model.migrateSql.length; ++statementIter) {
       chain.push(function(statementIndex) {
@@ -150,7 +152,7 @@ module.exports.upgradeDB = function() {
 
         return sql.rawQueryPromise(statement).then(function() {
           return new Q.Promise(function(resolve, reject) {
-            model = require('./model');
+            model = require("./model");
 
             model.databaseVersion++;
 
