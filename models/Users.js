@@ -1,5 +1,9 @@
-var $                 = require('../util/jquery').$;
-var model             = require('./model');
+"use strict";
+
+var $                 = require("../util/jquery").$;
+var model             = require("./model");
+var sql               = require("./sql");
+var squel             = require("squel");
 
 const TABLE_NAME = "users";
 const MODEL_NAME = "Users";
@@ -25,7 +29,7 @@ CREATE TABLE users (
 
 /** SQL MIGRATIONS **/
 
-const migrations = [ ];
+const migrations = []; // eslint-disable-line no-unused-vars
 
 /** CURRENT CREATE TABLE STATEMENT **/
 
