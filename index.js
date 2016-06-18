@@ -12,6 +12,10 @@ var Log = require("node-android-logging");
 
 Log.I("=".repeat(process.stdout.columns));
 
+// A global root path variable
+//  http://stackoverflow.com/questions/10265798/determine-project-root-from-a-running-node-js-application
+global.appRoot = path.resolve(__dirname);
+
 // Initialize all the models.
 require("./models/model");
 

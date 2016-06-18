@@ -27,7 +27,7 @@ module.exports.Index = function(request, response) {
     .field("id")
     .field("filename")
     .field("dt")
-    .from("uploads")
+    .from(Uploads.TABLE_NAME)
     .offset(request.offset)
     .limit(request.limit)
     .toString();
@@ -40,7 +40,7 @@ module.exports.Index = function(request, response) {
     response.paginationLimit  = request.limit;
     response.paginationOffset = request.offset;
 
-    return sql.rawQueryPromise(squel.select().field("COUNT(*)", "count").from("uploads").toString());
+    return sql.rawQueryPromise(squel.select().field("COUNT(*)", "count").from(Uploads.TABLE_NAME).toString());
   }).then(function(result) {
     var uploadCount  = result;
 
@@ -140,7 +140,19 @@ module.exports.NextProof = function(request, response) {
   sql = require("../models/sql");
   proofsController  = require("./ProofsController");
 
-  return sql.rawQueryPromise("SELECT * FROM uploads WHERE id NOT IN (SELECT uploadsId FROM UploadReadings WHERE ocrParamsJson->\"$.proof\" = true) ORDER BY id ASC LIMIT 1").then(function(result) {
+  let query = squel.select()
+    .from(Uploads.TABLE_NAME)
+    .where("id NOT IN ?", squel.select()
+      .field("uploadsId")
+      .from(UploadReadings.TABLE_NAME)
+      .where("JSON_EXTRACT(ocrParamsJson, \"$.proof\") = true"))
+    .order("id", true)
+    .limit(1)
+    .toString();
+
+  Log.I(query);
+
+  return sql.rawQueryPromise(query).then(function(result) {
     return new Q.Promise(function(resolve, reject) {
       response.status(200).send("" + result[0].id);
 

@@ -1,11 +1,13 @@
 "use strict";
 
 var $                 = require("../util/jquery").$;
+var fs                = require("fs");
 var Log               = require("node-android-logging");
 var Q                 = require("q");
 var Uploads           = require("../models/Uploads");
 var Pagination        = require("../util/pagination");
 var requestExpress    = require("../util/request-express");
+var uuid              = require("node-uuid");
 
 var opts      = {};
 
@@ -68,8 +70,40 @@ module.exports.Index = function(request, response) {
   return this;
 };
 
-module.exports.GetFile = function(request, response) {
+module.exports.api = {};
+
+module.exports.api.GetFile = function(request, response) {
   response.send("/static/uploads/" + request.params.id);
+
+  return this;
+};
+
+module.exports.api.Upload = function(request, response) {
+  Log.I({
+    message:  "Received an api/file/upload request ",
+    file:     request.params.file
+  });
+
+  let id = uuid.v4();
+  let filePath = global.appRoot + "/garbage/" + id + "." + request.params.file;
+
+  if (request.rawBody === undefined) {
+    Log.E("The raw body was undefined...  Didn't receive a file?");
+    Log.E(request.rawBody);
+
+    response.status(500).send();
+
+    return;
+  }
+
+  fs.writeFile(filePath, request.rawBody, function(err) {
+    if (err) {
+      Log.E(err);
+      response.status(500).send();
+    } else {
+      response.status(200).send({id: id});
+    }
+  });
 
   return this;
 };
