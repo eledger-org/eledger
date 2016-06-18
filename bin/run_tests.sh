@@ -5,7 +5,16 @@ echo "=============MOCHA==============="
 echo "==============END================"
 
 echo "=============ESLINT=============="
-node ./node_modules/eslint/bin/eslint.js controllers index.js example models router.js test util
+node ./node_modules/eslint/bin/eslint.js \
+  controllers \
+  index.js \
+  example \
+  models \
+  mysqlc.js \
+  router.js \
+  test \
+  util \
+
 echo "Eslint passed."
 echo "==============END================"
 

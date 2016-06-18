@@ -1,6 +1,8 @@
-var config       = require('config');
-var Log          = require('node-android-logging');
-var mysql        = require('mysql');
+"use strict";
+
+var config       = require("config");
+var Log          = require("node-android-logging");
+var mysql        = require("mysql");
 
 if (process.env.NODE_ENV === "development") {
   Log.I(config);
@@ -9,12 +11,12 @@ if (process.env.NODE_ENV === "development") {
 }
 
 function connect() {
-  mysqlc = mysql.createConnection({
+  let mysqlc = mysql.createConnection({
     password: config.get("db.password"),
     host: config.get("db.host"),
     user: config.get("db.user"),
     database: config.get("db.name"),
-    debug: true
+    debug: false
   });
 
   mysqlc.connect(function(err) {
@@ -24,10 +26,10 @@ function connect() {
     }
   });
 
-  mysqlc.on('error', function(err) {
+  mysqlc.on("error", function(err) {
     Log.E(err);
 
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+    if (err.code === "PROTOCOL_CONNECTION_LOST") {
       Log.W("Lost connection, trying to reconnect.");
 
       connect();
