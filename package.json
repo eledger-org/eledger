@@ -30,7 +30,7 @@
     "json": "^9.0.4",
     "mocha": "^2.5.3",
     "mysql": "^2.10.2",
-    "node-android-logging": "git+ssh://git@github.com/eledger-org/node-android-logging.git",
+    "node-android-logging": "https://github.com/eledger-org/node-android-logging.git",
     "q": "^1.4.1",
     "squel": "^5.3.1"
   },
