@@ -24,7 +24,9 @@ INSERT INTO DatabaseVersion (databaseVersion) VALUES (0);
 
 /** SQL INITIALIZATION **/
 
-const migrations = []; // eslint-disable-line no-unused-vars
+// eslint-disable-next-line no-unused-vars
+const migrations = [
+];
 
 /** CURRENT CREATE TABLE STATEMENT **/
 
