@@ -1,0 +1,52 @@
+<div id="container" class="container-fluid">
+  <table class="table table-striped">
+    <thead class="thead-inverse">
+      <tr class="row row-fluid row-header header-row">
+        <th class="col-xs-1">
+          Date
+        </th>
+        <th class="col-xs-4">
+          Description
+        </th>
+        <th class="col-xs-4">
+          Account
+        </th>
+        <th class="col-xs-1">
+          Credit
+        </th>
+        <th class="col-xs-1">
+          Debit
+        </th>
+        <th class="col-xs-1">
+          Balance
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+    {{#each ledgerEntries}}
+      <tr class="row row-fluid" row-id="{{id}}">
+        <td class="col-xs-1">
+          {{date-YYYY-MM-DD}}
+        </td>
+        <td class="col-xs-4">
+          {{description}}
+        </td>
+        <td class="col-xs-4">
+          {{account}}
+        </td>
+        <td class="col-xs-1">
+          {{credit}}
+        </td>
+        <td class="col-xs-1">
+          {{debit}}
+        </td>
+        <td class="col-xs-1">
+          {{balance}}
+        </td>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
+  {{> pagination}}
+</div>
+

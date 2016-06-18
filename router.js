@@ -1,7 +1,8 @@
 "use strict";
 
-var FilesController = require("./controllers/FilesController");
-var ProofsController = require("./controllers/ProofsController");
+var FilesController         = require("./controllers/FilesController");
+var LedgersController       = require("./controllers/LedgersController");
+var ProofsController        = require("./controllers/ProofsController");
 
 var jsonParser = require("body-parser").json();
 
@@ -18,4 +19,7 @@ module.exports = function(app) {
   app.get ("/proofs/:id", ProofsController.ProofById);
   app.get ("/api/proofs/next", ProofsController.NextProof);
   app.put ("/api/proofs/:id", jsonParser, ProofsController.SaveById);
+
+  /* Accounting Web */
+  app.get ("/ledgers/views/pro", LedgersController.LedgersViewsPro);
 };

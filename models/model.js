@@ -54,6 +54,7 @@ module.exports.DatabaseVersion    = require("./DatabaseVersion");
 module.exports.Uploads            = require("./Uploads");
 module.exports.UploadReadings     = require("./UploadReadings");
 module.exports.Users              = require("./Users");
+module.exports.LedgerEntries      = require("./LedgerEntries");
 
 /** PREPARE DATABASE **/
 sql.countTables().then(function(count) {
