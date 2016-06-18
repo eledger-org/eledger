@@ -10,15 +10,6 @@ module.exports.rawQueryPromise = function(statement) {
   Log.T("\n----" + statement + "\n");
 
   return new Q.Promise(function(resolve, reject) {
-    if (Array.isArray(statement)) {
-      let message = "statement was an Array";
-
-      Log.E(message);
-
-      reject(message);
-
-      return;
-    }
     mysqlc.query(statement, function(err, rows, fields) {
       if (err) {
         reject({
