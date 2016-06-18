@@ -1,26 +1,17 @@
-var $                 = require('../util/jquery').$;
-var Log               = require('node-android-logging');
-var path              = require('path');
-var printf            = require('util').format;
-var Q                 = require('q');
-var Uploads           = require('../models/Uploads');
-var UploadReadings    = require('../models/UploadReadings');
-var Pagination        = require('../util/pagination');
-var sql               = require('../models/sql');
-var squel             = require('squel');
-var requestExpress    = require('../util/request-express');
+var Log               = require("node-android-logging");
+var Q                 = require("q");
+var Uploads           = require("../models/Uploads");
+var UploadReadings    = require("../models/UploadReadings");
+var Pagination        = require("../util/pagination");
+var sql               = require("../models/sql");
+var squel             = require("squel");
+var requestExpress    = require("../util/request-express");
 
-var uploadsOpts = {
-  "fields": [
-    "id",
-    "filename",
-    "dt"
-  ]
-};
+var proofsController;
 
 module.exports.Index = function(request, response) {
-  request.limit  = requestExpress.getInt(request, 'limit',  10);
-  request.offset = requestExpress.getInt(request, 'offset', 0);
+  request.limit  = requestExpress.getInt(request, "limit",  10);
+  request.offset = requestExpress.getInt(request, "offset", 0);
 
   if (request.limit === undefined) {
     throw new Error("Invalid limit");
@@ -65,7 +56,7 @@ module.exports.Index = function(request, response) {
         response.paginationLimit = undefined;
         response.paginationOffset = undefined;
 
-        response.render('proofs/Index', response);
+        response.render("proofs/Index", response);
 
         resolve(null);
       } catch (ex) {
@@ -75,8 +66,7 @@ module.exports.Index = function(request, response) {
   }).catch(function(rejection) {
     response.status(500);
 
-    url = request.url;
-    response.render('errors/500');
+    response.render("errors/500");
     Log.E(rejection);
   });
 
@@ -84,7 +74,7 @@ module.exports.Index = function(request, response) {
 };
 
 module.exports.ProofById = function(request, response) {
-  pc = require('./ProofsController');
+  proofsController = require("./ProofsController");
 
   var query = squel.select()
     .from(Uploads.TABLE_NAME)
@@ -92,35 +82,36 @@ module.exports.ProofById = function(request, response) {
     .toString();
 
   sql.rawQueryPromise(query).then(function (result) {
-    return new Q.Promise(function(resolve, reject) {
-      Log.E(result);
-      if (result.length === 0) {
+    if (result.length === 0) {
+      return new Q.Promise(function(resolve, reject) {
         response.return = "/proofs/";
 
-        response.status(404).render('errors/404', response);
+        response.status(404).render("errors/404", response);
 
-        reject("No records found by the given ID");
-      } else {
-        response.result = result[0];
+        reject({
+          "handled": true
+        });
+      });
+    } else {
+      var query = squel.select()
+        .from("UploadReadings")
+        .where("JSON_EXTRACT(ocrParamsJson, \"$.proof\") = true")
+        .where("uploadsId = ?", request.params.id)
+        .limit(1)
+        .toString();
 
-        resolve(result[0]);
-      }
-    });
-  }).then(function(result) {
-    var query = squel.select()
-      .from("UploadReadings")
-      .where("JSON_EXTRACT(ocrParamsJson, \"$.proof\") = true")
-      .where("uploadsId = ?", request.params.id)
-      .limit(1)
-      .toString();
+      // TODO Rename this result parameter to something more meaningful like
+      //  'image id' or whatever it even is
+      response.result = result[0];
 
-    return sql.rawQueryPromise(query);
+      return sql.rawQueryPromise(query);
+    }
   }).then(function(result) {
     response.readings = result;
 
-    return pc._proof(request, response, result);
+    return proofsController._proof(request, response);
   }).catch(function(rejection) {
-    return pc._error(request, response, rejection);
+    return proofsController._error(request, response, rejection);
   });
 };
 
@@ -131,42 +122,38 @@ module.exports.SaveById = function(request, response) {
     id: request.params.id,
     ocrParamsJson: {proof: true},
     dataJson: request.body
-  }).then(function(result) {
-    console.log(result);
-
+  }).then(function() {
     response.status(200);
     response.send({response: "OK"});
   }).catch(function(rejection) {
     response.status(500);
 
-    url = request.url;
-    response.render('errors/500');
+    response.render("errors/500");
     Log.E(rejection);
   });
 
 };
 
 module.exports.NextProof = function(request, response) {
-  sql = require('../models/sql');
-  pc  = require('./ProofsController');
+  sql = require("../models/sql");
+  proofsController  = require("./ProofsController");
 
-  return sql.rawQueryPromise(
-    "SELECT * FROM uploads WHERE id NOT IN " +
-    "(SELECT uploadsId FROM UploadReadings WHERE ocrParamsJson->\"$.proof\" = true)" +
-    "ORDER BY id ASC LIMIT 1").then(function(result) {
+  return sql.rawQueryPromise("SELECT * FROM uploads WHERE id NOT IN (SELECT uploadsId FROM UploadReadings WHERE ocrParamsJson->\"$.proof\" = true) ORDER BY id ASC LIMIT 1").then(function(result) {
+    return new Q.Promise(function(resolve, reject) {
       response.status(200).send("" + result[0].id);
 
       resolve();
-    }).catch(function(rejection) {
-      return pc._error(request, response, rejection);
     });
+  }).catch(function(rejection) {
+    return proofsController._error(request, response, rejection);
+  });
 };
 
-module.exports._proof = function(request, response, result) {
+module.exports._proof = function(request, response) {
   return new Q.Promise(function(resolve, reject) {
     Log.I(response.result);
 
-    response.render('proofs/Proof', response);
+    response.render("proofs/Proof", response);
 
     resolve();
   });
@@ -175,8 +162,7 @@ module.exports._proof = function(request, response, result) {
 module.exports._error = function(request, response, rejection) {
   response.status(500);
 
-  url = request.url;
-  response.render('errors/500');
+  response.render("errors/500");
   Log.E(rejection);
 };
 
