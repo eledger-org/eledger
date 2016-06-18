@@ -1,3 +1,5 @@
+"use strict";
+
 /** The purpose of this script is to standardize the API to interact with the pagination functionality on the client **/
 var Log = require("node-android-logging");
 

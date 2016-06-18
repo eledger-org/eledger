@@ -1,3 +1,5 @@
+"use strict";
+
 var $                 = require("../util/jquery").$;
 var Log               = require("node-android-logging");
 var Q                 = require("q");

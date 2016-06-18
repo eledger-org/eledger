@@ -1,3 +1,5 @@
+"use strict";
+
 var Log               = require("node-android-logging");
 var Q                 = require("q");
 var Uploads           = require("../models/Uploads");
