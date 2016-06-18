@@ -61,6 +61,12 @@
       "linebreak-style": [
         "error",
         "unix"
+      ],
+      "no-unused-vars": [
+        "error",
+        {
+          "argsIgnorePattern": "reject"
+        }
       ]
     }
   }
