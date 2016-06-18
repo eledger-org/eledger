@@ -1,6 +1,7 @@
-var $                 = require('../util/jquery').$;
-var model             = require('./model');
-var squel             = require('squel');
+var $                 = require("../util/jquery").$;
+var model             = require("./model");
+var sql               = require("./sql");
+var squel             = require("squel");
 
 const TABLE_NAME = "DatabaseVersion";
 const MODEL_NAME = "DatabaseVersion";
@@ -21,7 +22,7 @@ INSERT INTO DatabaseVersion (databaseVersion) VALUES (0);
 
 /** SQL INITIALIZATION **/
 
-const migrations = [];
+const migrations = []; // eslint-disable-line no-unused-vars
 
 /** CURRENT CREATE TABLE STATEMENT **/
 
