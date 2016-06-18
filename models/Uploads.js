@@ -1,7 +1,7 @@
-var $                 = require('../util/jquery').$;
-var model             = require('./model');
-var sql               = require('./sql');
-var squel             = require('squel');
+var $                 = require("../util/jquery").$;
+var model             = require("./model");
+var sql               = require("./sql");
+var squel             = require("squel");
 
 const TABLE_NAME = "uploads";
 const MODEL_NAME = "Uploads";
@@ -22,11 +22,13 @@ CREATE TABLE uploads (
 
 /** SQL MIGRATIONS **/
 
-const migrations = [ `
+const migrations = [
+  `
 ALTER   TABLE   uploads
 CHANGE  COLUMN  id
   id        BIGINT UNSIGNED   NOT NULL AUTO_INCREMENT;
-` ];
+  `
+];
 
 /** CURRENT CREATE TABLE STATEMENT **/
 
