@@ -86,15 +86,38 @@ sql.countTables().then(function(count) {
     return sql.rawQueryPromise(query).then(function(result) {
       model.databaseVersion = result[0].databaseVersion;
 
+      if (model.databaseVersion === model.migrateSql.length) {
+        return new Q.Promise(function(resolve, reject) {
+          reject({
+            "err": false,
+            "message": "Database is already up to date at version " + model.databaseVersion + "!"
+          });
+        });
+      }
+
       return sql.beginTransaction();
     }).then(function() {
+      Log.D("Upgrading the database from version " + model.databaseVersion + " to " + model.migrateSql.length + ".");
+
       return model.upgradeDB();
     }).then(function() {
       return model.setDatabaseVersion();
     }).then(function() {
       return sql.commit();
+    }).then(function() {
+      return new Q.Promise(function(resolve, reject) {
+        Log.D("Upgraded the database.");
+
+        resolve();
+      });
     }).catch(function(err) {
-      throw err;
+      if (err.err === false) {
+        if (err.message !== undefined) {
+          Log.I(err.message);
+        }
+      } else {
+        throw err;
+      }
     });
   }
 }).catch(function(err) {
@@ -110,6 +133,8 @@ sql.countTables().then(function(count) {
 module.exports.setDatabaseVersion = function() {
   model = require("./model");
 
+  Log.D("Setting database version to " + model.databaseVersion);
+
   return sql.setDatabaseVersion(model.databaseVersion);
 };
 
@@ -119,15 +144,22 @@ module.exports.createDB = function() {
 
   let statementIter = 0;
 
-  for (statementIter = 0; statementIter < model.createSql.length; ++statementIter) {
-    chain.push(function(statementIndex) {
-      const statement = model.createSql[statementIndex].createStatement;
-      return sql.rawQueryPromise(statement).then(function() {
-        return new Q.Promise(function(resolve, reject) {
-          resolve(statementIndex + 1);
-        });
+  let chainPush = function(statement) {
+    return sql.rawQueryPromise(statement).then(function() {
+      return new Q.Promise(function(resolve, reject) {
+        resolve();
       });
     });
+  };
+
+  for (statementIter = 0; statementIter < model.createSql.length; ++statementIter) {
+    if (Array.isArray(model.createSql[statementIter])) {
+      for (let multiIter = 0; multiIter < model.createSql[statementIter].createStatement.length; ++multiIter) {
+        chain.push(chainPush(model.createSql[statementIter].createStatement[multiIter]));
+      }
+    } else {
+      chain.push(chainPush(model.createSql[statementIter].createStatement));
+    }
   }
 
   return chain.reduce(Q.when, Q(0));
@@ -147,20 +179,32 @@ module.exports.upgradeDB = function() {
 
     let statementIter = result[0].databaseVersion;
 
-    for (statementIter = result[0].databaseVersion; statementIter < model.migrateSql.length; ++statementIter) {
-      chain.push(function(statementIndex) {
-        const statement = model.migrateSql[statementIndex].migrateStatement;
-
+    let chainPush = function(statement) {
+      return function() {
         return sql.rawQueryPromise(statement).then(function() {
           return new Q.Promise(function(resolve, reject) {
             model = require("./model");
 
             model.databaseVersion++;
 
-            resolve(statementIndex + 1);
+            resolve();
           });
         });
-      });
+      };
+    };
+
+    for (statementIter = result[0].databaseVersion; statementIter < model.migrateSql.length; ++statementIter) {
+      Log.T(model.migrateSql[statementIter]);
+
+      if (Array.isArray(model.migrateSql[statementIter].migrateStatement)) {
+        for (let multiIter = 0; multiIter < model.migrateSql[statementIter].migrateStatement.length; ++multiIter) {
+          Log.T(model.migrateSql[statementIter].migrateStatement[multiIter]);
+          chain.push(chainPush(model.migrateSql[statementIter].migrateStatement[multiIter]));
+        }
+      } else {
+        Log.T("Detected a string!");
+        chain.push(chainPush(model.migrateSql[statementIter].migrateStatement));
+      }
     }
 
     return chain.reduce(Q.when, Q(result[0].databaseVersion));
