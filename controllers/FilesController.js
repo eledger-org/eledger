@@ -1,17 +1,15 @@
-var $                 = require('../util/jquery').$;
-var Log               = require('node-android-logging');
-var path              = require('path');
-var printf            = require('util').format;
-var Q                 = require('q');
-var Uploads           = require('../models/Uploads');
-var Pagination        = require('../util/pagination');
-var requestExpress    = require('../util/request-express');
+var $                 = require("../util/jquery").$;
+var Log               = require("node-android-logging");
+var Q                 = require("q");
+var Uploads           = require("../models/Uploads");
+var Pagination        = require("../util/pagination");
+var requestExpress    = require("../util/request-express");
 
 var opts      = {};
 
 module.exports.Index = function(request, response) {
-  request.limit  = requestExpress.getInt(request, 'limit',  10);
-  request.offset = requestExpress.getInt(request, 'offset', 0);
+  request.limit  = requestExpress.getInt(request, "limit",  10);
+  request.offset = requestExpress.getInt(request, "offset", 0);
 
   if (request.limit === undefined) {
     throw new Error("Invalid limit");
@@ -25,8 +23,6 @@ module.exports.Index = function(request, response) {
 
   Uploads.find($.extend(true, {}, opts, request.query)).then(function (result) {
     var foundUploads          = result;
-    var queryInfo             = result.queryInfo;
-    var queryBuilder          = result.queryBuilder;
 
     response.upload           = foundUploads;
     response.resultCount      = foundUploads.length;
@@ -53,7 +49,7 @@ module.exports.Index = function(request, response) {
         response.paginationOffset = undefined;
 
         Log.I(response);
-        response.render('file/Index', response);
+        response.render("file/Index", response);
 
         resolve(null);
       } catch (ex) {
@@ -63,8 +59,7 @@ module.exports.Index = function(request, response) {
   }).catch(function(rejection) {
     response.status(500);
 
-    url = request.url;
-    response.render('errors/500');
+    response.render("errors/500");
     Log.E(rejection);
   });
 
@@ -72,7 +67,7 @@ module.exports.Index = function(request, response) {
 };
 
 module.exports.GetFile = function(request, response) {
-  response.send('/static/uploads/' + request.params.id);
+  response.send("/static/uploads/" + request.params.id);
 
   return this;
 };
