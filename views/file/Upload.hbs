@@ -1,0 +1,91 @@
+<script type="text/css">
+  tempPicture {
+    position: absolute;
+    top:      0;
+    left:     0;
+    height:   100%;
+    width:    100%;
+  }
+</script>
+
+<div id="container">
+  <video id="video" style="position: absolute; top: 0; left: 0;position: absolute; top: 0; left: 0;  height: 100%; width: 100%;" autoplay></video>
+  <canvas id="canvas" style="position: absolute; top: 0; left: 0; height: 100%; width: 100%;"></canvas>
+</div>
+
+<script type="text/javascript">
+// Put event listeners into place
+window.addEventListener("DOMContentLoaded", function() {
+	// Grab elements, create settings, etc.
+	var canvas = document.getElementById("canvas"),
+		context = canvas.getContext("2d"),
+		video = document.getElementById("video"),
+		videoObj = { "video": true },
+		errBack = function(error) {
+			console.log("Video capture error: ", error.code);
+		};
+
+  $('canvas').first().hide();
+
+	// Put video listeners into place
+	if(navigator.getUserMedia) { // Standard
+		navigator.getUserMedia(videoObj, function(stream) {
+			video.src = stream;
+			video.play();
+		}, errBack);
+	} else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
+    navigator.mediaDevices.enumerateDevices().then(function(deviceInfos) {
+      console.log(deviceInfos);
+      $('#log').text(JSON.stringify(deviceInfos, null, 2));
+
+      for (dIter = 0; dIter < deviceInfos.length; ++dIter) {
+        deviceInfo = deviceInfos[dIter];
+
+        if (deviceInfo.label === "camera2 0, facing back") {
+          constraints = {};
+
+          constraints.video = {
+            optional: [{sourceId: deviceInfo.deviceId}]
+          };
+
+          navigator.webkitGetUserMedia(constraints, function(stream){
+            video.src = window.URL.createObjectURL(stream);
+            video.play();
+          }, errBack);
+
+          return;
+        }
+      }
+
+      navigator.webkitGetUserMedia(videoObj, function(stream){
+        video.src = window.URL.createObjectURL(stream);
+        video.play();
+      }, errBack);
+    });
+
+	}
+	else if(navigator.mozGetUserMedia) { // Firefox-prefixed
+		navigator.mozGetUserMedia(videoObj, function(stream){
+			video.src = window.URL.createObjectURL(stream);
+			video.play();
+		}, errBack);
+	}
+}, false);
+
+$('video').click(function() {
+  canvas = $('canvas');
+  context = canvas[0].getContext('2d');
+  canvas = canvas.first();
+
+  console.log(canvas.width());
+  console.log(canvas.height());
+  console.log(video.videoWidth);
+  console.log(video.videoHeight);
+
+  context.drawImage(video, 0, 0, canvas.width(), canvas.height(), 0, 0, video.videoWidth, video.videoHeight);
+  canvas.show();
+  console.log("Click!");
+});
+
+
+</script>
