@@ -1,14 +1,38 @@
 <div class="pagination-container">
   <ul class="pagination">
-    <li class="page-item"><a class="pagination-beg  page-link"><i class="icon ion-chevron-left"></i><i class="icon ion-chevron-left"></i></a></li>
-    <li class="page-item"><a class="pagination-prev page-link"><i class="icon ion-chevron-left"></i></a></li>
+    <li class="page-item">
+      <a class="pagination-beg  page-link">
+        <i class="icon ion-chevron-left">
+        </i>
+        <i class="icon ion-chevron-left">
+        </i>
+      </a>
+    </li>
+    <li class="page-item">
+      <a class="pagination-prev page-link">
+        <i class="icon ion-chevron-left">
+        </i>
+      </a>
+    </li>
     {{#each pagination._pages}}
       <li class="{{class}}">
         <a class="page-link pagination-num" pageNumber="{{pageNumber}}" offset="{{offset}}">{{pageNumber}}</a>
       </li>
     {{/each}}
-    <li class="page-item"><a class="pagination-next page-link"><i class="icon ion-chevron-right"></i></a></li>
-    <li class="page-item"><a class="pagination-end  page-link"><i class="icon ion-chevron-right"></i><i class="icon ion-chevron-right"></i></a></li>
+    <li class="page-item">
+      <a class="pagination-next page-link">
+        <i class="icon ion-chevron-right">
+        </i>
+      </a>
+    </li>
+    <li class="page-item">
+      <a class="pagination-end  page-link">
+        <i class="icon ion-chevron-right">
+        </i>
+        <i class="icon ion-chevron-right">
+        </i>
+      </a>
+    </li>
   </ul>
 
   <script type="text/javascript">
